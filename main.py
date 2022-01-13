@@ -42,7 +42,7 @@ class Slantic(object):
             "bar_l": [0, 5, 8, 3],
             "fang_r": [3, 7, 8],
             "fang_l": [5, 6, 7],
-            "crux": [4, 6, 8]
+            "crux": [4, 6, 7, 8]
         }
 
         self.drawSlantic()
