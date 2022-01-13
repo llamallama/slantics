@@ -2,8 +2,9 @@
 import pygame
 
 BLACK = (0, 0, 0)
-WHITE = (200, 200, 200)
+WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 WINDOW_HEIGHT = 800
 WINDOW_WIDTH = 800
 BLOCK_SIZE = 100
@@ -19,8 +20,6 @@ BOARD=[
     [0,0,0,0,0,0,0,0]
 ]
 
-slantics=[]
-
 class Slantic(object):
     def __init__(self, shape, x, y, screen, size=BLOCK_SIZE, padding=2):
         self.x = x * BLOCK_SIZE
@@ -30,24 +29,36 @@ class Slantic(object):
         self.surface = pygame.Surface((self.width, self.height))
         self.screen = screen
         self.shape = shape
-        self.color_light = (77, 94, 100)
-        self.color_dark = (0, 9, 60)
+        self.color_light = WHITE
+        self.color_dark = BLUE
+        self.mode = "dark"
 
-        self.coords = [(0,0),              (self.width/2, 0),           (self.width, 0),
-                       (0, self.height/2),                              (self.width, self.height/2),
-                       (0, self.height),   (self.width/2, self.height), (self.width, self.height)]
+        self.coords = [(0,0),              (self.width/2, 0),             (self.width, 0),
+                       (0, self.height/2), (self.width/2, self.height/2), (self.width, self.height/2),
+                       (0, self.height),   (self.width/2, self.height),   (self.width, self.height)]
 
         self.shapes = {
-            "bar": [3, 2, 4, 5]
+            "bar_r": [2, 5, 6, 3],
+            "bar_l": [0, 5, 8, 3],
+            "fang_r": [3, 7, 8],
+            "fang_l": [5, 6, 7],
+            "crux": [4, 6, 8]
         }
 
         self.drawSlantic()
 
 
     def drawSlantic(self):
+        if self.mode == "dark":
+            fill_color = self.color_light
+            poly_color = self.color_dark
+        else:
+            fill_color = self.color_dark
+            poly_color = self.color_light
+
         poly_list = [self.coords[x] for x in self.shapes[self.shape]]
-        self.surface.fill(self.color_light)
-        pygame.draw.polygon(self.surface, self.color_dark, poly_list)
+        self.surface.fill(fill_color)
+        pygame.draw.polygon(self.surface, poly_color, poly_list)
         self.screen.blit(self.surface, (self.x + 1, self.y + 1))
 
 
@@ -56,38 +67,37 @@ def main():
     pygame.init()
     SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     CLOCK = pygame.time.Clock()
+    FPS = 30
     SCREEN.fill(WHITE)
-    # drawGrid()
 
-    fps = 30
+    slantics=[]
 
-    # for y in range(len(BOARD)):
-    #     slantics.append([])
-    #     for x in range(len(BOARD[y])):
-    #         slantics[y].append(Slantic("bar", x, y, SCREEN))
+    slantics.append(Slantic("bar_r", 0, 0, SCREEN))
+    slantics.append(Slantic("bar_l", 1, 0, SCREEN))
+    slantics.append(Slantic("fang_r", 2, 0, SCREEN))
+    slantics.append(Slantic("fang_l", 3, 0, SCREEN))
+    slantics.append(Slantic("crux", 4, 0, SCREEN))
 
     while True:
-    #     SCREEN.fill(BLACK)
-    #     drawGrid()
+        SCREEN.fill(WHITE)
+        drawGrid()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-    #     for y in range(len(BOARD)):
-    #         slantics.append([])
-    #         for x in range(len(BOARD[y])):
-    #             slantics[y][x].drawSlantic()
+        for s in slantics:
+            s.drawSlantic()
 
         pygame.display.update()
-        CLOCK.tick(fps)
+        CLOCK.tick(FPS)
 
 
 def drawGrid():
     for y in range(len(BOARD)):
         for x in range(len(BOARD[y])):
             rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
-            pygame.draw.rect(SCREEN, WHITE, rect, 1)
+            pygame.draw.rect(SCREEN, BLACK, rect, 1)
 
 main()
 
