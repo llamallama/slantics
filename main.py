@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pygame
+import numpy as np
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -20,6 +21,21 @@ BOARD=[
     [0,0,0,0,0,0,0,0]
 ]
 
+
+SHAPES = {
+    "bar": [
+        [0, 0, 1],
+        [4, 0, 2],
+        [3, 0, 0],
+    ],
+    "beam": [
+        [1, 2, 0],
+        [5, 0, 3],
+        [0, 0, 4],
+    ]
+}
+
+
 class Slantic(object):
     def __init__(self, shape, x, y, screen, size=BLOCK_SIZE, padding=2):
         self.x = x * BLOCK_SIZE
@@ -33,22 +49,20 @@ class Slantic(object):
         self.color_dark = BLUE
         self.mode = "dark"
 
-        self.coords = [(0,0),              (self.width/2, 0),             (self.width, 0),
-                       (0, self.height/2), (self.width/2, self.height/2), (self.width, self.height/2),
-                       (0, self.height),   (self.width/2, self.height),   (self.width, self.height)]
+        print(self.shape)
 
-        self.shapes = {
-            "bar_r": [2, 5, 6, 3],
-            "bar_l": [0, 5, 8, 3],
-            "fang_r": [3, 7, 8],
-            "fang_l": [5, 6, 7],
-            "crux": [4, 6, 7, 8]
-        }
+        self.coords = [
+            [(0,0),              (self.width/2, 0),             (self.width, 0)],
+            [(0, self.height/2), (self.width/2, self.height/2), (self.width, self.height/2)],
+            [(0, self.height),   (self.width/2, self.height),   (self.width, self.height)]
+        ]
 
         self.drawSlantic()
 
 
     def drawSlantic(self):
+        poly_list = []
+
         if self.mode == "dark":
             fill_color = self.color_light
             poly_color = self.color_dark
@@ -56,7 +70,12 @@ class Slantic(object):
             fill_color = self.color_dark
             poly_color = self.color_light
 
-        poly_list = [self.coords[x] for x in self.shapes[self.shape]]
+        for num in range(1,6):
+            for index, s in enumerate(self.shape):
+                if num in s:
+                    poly_list.append(self.coords[index][s.index(num)])
+                    continue
+
         self.surface.fill(fill_color)
         pygame.draw.polygon(self.surface, poly_color, poly_list)
         self.screen.blit(self.surface, (self.x + 1, self.y + 1))
@@ -72,11 +91,10 @@ def main():
 
     slantics=[]
 
-    slantics.append(Slantic("bar_r", 0, 0, SCREEN))
-    slantics.append(Slantic("bar_l", 1, 0, SCREEN))
-    slantics.append(Slantic("fang_r", 2, 0, SCREEN))
-    slantics.append(Slantic("fang_l", 3, 0, SCREEN))
-    slantics.append(Slantic("crux", 4, 0, SCREEN))
+    slantics.append(Slantic(SHAPES["bar"], 0, 0, SCREEN))
+    slantics.append(Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, SCREEN))
+    slantics.append(Slantic(SHAPES["beam"], 2, 0, SCREEN))
+    slantics.append(Slantic(np.fliplr(SHAPES["beam"]).tolist(), 3, 0, SCREEN))
 
     while True:
         SCREEN.fill(WHITE)
