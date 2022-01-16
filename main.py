@@ -52,23 +52,33 @@ SHAPES = {
 
 
 class Slantic(object):
-    def __init__(self, shape, x, y, screen, size=BLOCK_SIZE, padding=2):
-        self.x = x * BLOCK_SIZE
-        self.y = y * BLOCK_SIZE
+    def __init__(self, shape, x, y, surface, size=BLOCK_SIZE, margin=1, padding=2):
+        self.x = x * BLOCK_SIZE + margin
+        self.y = y * BLOCK_SIZE + margin
         self.width = BLOCK_SIZE - padding
         self.height = BLOCK_SIZE - padding
-        self.surface = pygame.Surface((self.width, self.height))
-        self.screen = screen
+        self.surface = surface
         self.shape = shape
         self.color_light = WHITE
         self.color_dark = BLUE
-        self.mode = "dark"
-
+        self.dark = True
 
         self.coords = [
-            [(0,0),              (self.width/2, 0),             (self.width, 0)],
-            [(0, self.height/2), (self.width/2, self.height/2), (self.width, self.height/2)],
-            [(0, self.height),   (self.width/2, self.height),   (self.width, self.height)]
+            [
+                (self.x, self.y),
+                (self.x + self.width/2, self.y),
+                (self.x + self.width, self.y)
+            ],
+            [
+                (self.x, self.y + self.height/2),
+                (self.x + self.width/2, self.y + self.height/2),
+                (self.x + self.width, self.y + self.height/2)]
+            ,
+            [
+                (self.x, self.y + self.height),
+                (self.x + self.width/2, self.y + self.height),
+                (self.x + self.width, self.y + self.height)
+            ]
         ]
 
         self.rect = self.drawSlantic()
@@ -77,12 +87,8 @@ class Slantic(object):
     def drawSlantic(self):
         poly_list = []
 
-        if self.mode == "dark":
-            fill_color = self.color_light
-            poly_color = self.color_dark
-        else:
-            fill_color = self.color_dark
-            poly_color = self.color_light
+        fill_color = self.color_light if self.dark else self.color_dark
+        poly_color = self.color_dark if self.dark else self.color_light
 
         for num in range(1,6):
             for index, s in enumerate(self.shape):
@@ -90,10 +96,16 @@ class Slantic(object):
                     poly_list.append(self.coords[index][s.index(num)])
                     continue
 
-        self.surface.fill(fill_color)
-        rect = pygame.draw.polygon(self.surface, poly_color, poly_list)
-        self.screen.blit(self.surface, (self.x + 1, self.y + 1))
+        rect = pygame.draw.rect(self.surface, fill_color, (self.x, self.y, self.width, self.height))
+        pygame.draw.polygon(self.surface, poly_color, poly_list)
         return rect
+
+    def flip(self):
+        self.dark = not self.dark
+
+    def rotate(self):
+        self.coords = np.rot90(self.coords).tolist()
+
 
 
 def main():
@@ -126,11 +138,15 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if bar_r.rect.collidepoint(pygame.mouse.get_pos()):
-                    print('bar_r')
+                for s in slantics:
+                    if s.rect.collidepoint(pygame.mouse.get_pos()):
+                        s.flip()
 
-                if bar_l.rect.collidepoint(pygame.mouse.get_pos()):
-                    print('bar_l')
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    for s in slantics:
+                        if s.rect.collidepoint(pygame.mouse.get_pos()):
+                            s.rotate()
 
             if event.type == pygame.QUIT:
                 pygame.quit()
