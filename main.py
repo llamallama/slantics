@@ -111,9 +111,13 @@ class Slantic(object):
         self.shape = shape
         self.color_light = WHITE
         self.color_dark = BLUE
-        self.dark = True
+        self._dark = True
+        self._coords = []
+        self.rect = self.drawSlantic()
+        self.drag = False
 
-        self.coords = [
+    def drawSlantic(self):
+        self._coords = [
             [
                 (self.x, self.y),
                 (self.x + self.width/2, self.y),
@@ -131,34 +135,29 @@ class Slantic(object):
             ]
         ]
 
-        self.rect = self.drawSlantic()
-
-
-
-    def drawSlantic(self):
         poly_list = []
 
-        fill_color = self.color_light if self.dark else self.color_dark
-        poly_color = self.color_dark if self.dark else self.color_light
+        fill_color = self.color_light if self._dark else self.color_dark
+        poly_color = self.color_dark if self._dark else self.color_light
 
         for num in range(1,10):
             for index, s in enumerate(self.shape):
                 if num in s:
-                    poly_list.append(self.coords[index][s.index(num)])
+                    poly_list.append(self._coords[index][s.index(num)])
                     continue
 
-        rect = pygame.draw.rect(self.surface, fill_color, (self.x, self.y, self.width, self.height))
+        self.rect = pygame.draw.rect(self.surface, fill_color, (self.x, self.y, self.width, self.height))
 
         if len(poly_list) > 2:
             pygame.draw.polygon(self.surface, poly_color, poly_list)
 
-        return rect
+        return self.rect
 
     def flip(self):
-        self.dark = not self.dark
+        self._dark = not self._dark
 
     def rotate(self):
-        self.coords = np.rot90(self.coords).tolist()
+        self._coords = np.rot90(self._coords).tolist()
 
 def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, SCREEN)
@@ -225,11 +224,23 @@ def main():
         for s in slantics:
             s.drawSlantic()
 
+            if s.drag:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                s.x = mouse_x + offset_x
+                s.y = mouse_y + offset_y
+
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for s in slantics:
                     if s.rect.collidepoint(pygame.mouse.get_pos()):
-                        s.flip()
+                        s.drag = True
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
+                        offset_x = s.x - mouse_x
+                        offset_y = s.y - mouse_y
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                for s in slantics:
+                    s.drag = False
 
             if event.type == pygame.KEYDOWN:
                 for s in slantics:
