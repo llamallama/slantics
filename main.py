@@ -92,6 +92,11 @@ SHAPES = {
         [0, 1, 2],
         [4, 0, 0],
         [3, 0, 0]
+    ],
+    "bonus": [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
     ]
 }
 
@@ -129,6 +134,7 @@ class Slantic(object):
         self.rect = self.drawSlantic()
 
 
+
     def drawSlantic(self):
         poly_list = []
 
@@ -142,7 +148,9 @@ class Slantic(object):
                     continue
 
         rect = pygame.draw.rect(self.surface, fill_color, (self.x, self.y, self.width, self.height))
-        pygame.draw.polygon(self.surface, poly_color, poly_list)
+
+        if len(poly_list) > 2:
+            pygame.draw.polygon(self.surface, poly_color, poly_list)
 
         return rect
 
@@ -152,16 +160,7 @@ class Slantic(object):
     def rotate(self):
         self.coords = np.rot90(self.coords).tolist()
 
-
-
-def main():
-    global SCREEN, CLOCK
-    pygame.init()
-    SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    CLOCK = pygame.time.Clock()
-    FPS = 30
-    SCREEN.fill(WHITE)
-
+def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, SCREEN)
     bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, SCREEN)
     beam_r = Slantic(SHAPES["beam"], 2, 0, SCREEN)
@@ -182,8 +181,9 @@ def main():
     spike_r = Slantic(SHAPES["spike"], 1, 2, SCREEN)
     spike_l = Slantic(np.fliplr(SHAPES["spike"]).tolist(), 2, 2, SCREEN)
     strip = Slantic(SHAPES["strip"], 3, 2, SCREEN)
+    bonus = Slantic(SHAPES["bonus"], 4, 2, SCREEN)
 
-    slantics = [
+    return [
         bar_r,
         bar_l,
         beam_r,
@@ -203,9 +203,19 @@ def main():
         slope_l,
         spike_r,
         spike_l,
-        strip
+        strip,
+        bonus
     ]
 
+def main():
+    global SCREEN, CLOCK
+    pygame.init()
+    SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    CLOCK = pygame.time.Clock()
+    FPS = 30
+    SCREEN.fill(WHITE)
+
+    slantics = setup_tiles()
 
     while True:
         pygame.display.update()
@@ -222,10 +232,12 @@ def main():
                         s.flip()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    for s in slantics:
-                        if s.rect.collidepoint(pygame.mouse.get_pos()):
+                for s in slantics:
+                    if s.rect.collidepoint(pygame.mouse.get_pos()):
+                        if event.key == pygame.K_r:
                             s.rotate()
+                        if event.key == pygame.K_f:
+                            s.flip()
 
             if event.type == pygame.QUIT:
                 pygame.quit()
