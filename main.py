@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import pygame
+import math
 import numpy as np
 
 BLACK = (0, 0, 0)
@@ -165,27 +166,27 @@ class Slantic(object):
             self.rotation = 0
 
 def setup_tiles():
-    bar_r = Slantic(SHAPES["bar"], 0, 0, SCREEN)
-    bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, SCREEN)
-    beam_r = Slantic(SHAPES["beam"], 2, 0, SCREEN)
-    beam_l = Slantic(np.fliplr(SHAPES["beam"]).tolist(), 3, 0, SCREEN)
-    bit = Slantic(SHAPES["bit"], 4, 0, SCREEN)
-    corner_r = Slantic(SHAPES["corner"], 5, 0, SCREEN)
-    corner_l = Slantic(np.fliplr(SHAPES["corner"]).tolist(), 6, 0, SCREEN)
-    crux = Slantic(SHAPES["crux"], 7, 0, SCREEN)
-    fang_r = Slantic(SHAPES["fang"], 0, 1, SCREEN)
-    fang_l = Slantic(np.fliplr(SHAPES["fang"]).tolist(), 1, 1, SCREEN)
-    hexx = Slantic(SHAPES["hexx"], 2, 1, SCREEN)
-    hill = Slantic(SHAPES["hill"], 3, 1, SCREEN)
-    peak = Slantic(SHAPES["peak"], 4, 1, SCREEN)
-    point = Slantic(SHAPES["point"], 5, 1, SCREEN)
-    slant = Slantic(SHAPES["slant"], 6, 1, SCREEN)
-    slope_r = Slantic(SHAPES["slope"], 7, 1, SCREEN)
-    slope_l = Slantic(np.fliplr(SHAPES["slope"]).tolist(), 0, 2, SCREEN)
-    spike_r = Slantic(SHAPES["spike"], 1, 2, SCREEN)
-    spike_l = Slantic(np.fliplr(SHAPES["spike"]).tolist(), 2, 2, SCREEN)
-    strip = Slantic(SHAPES["strip"], 3, 2, SCREEN)
-    bonus = Slantic(SHAPES["bonus"], 4, 2, SCREEN)
+    bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
+    bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, screen)
+    beam_r = Slantic(SHAPES["beam"], 2, 0, screen)
+    beam_l = Slantic(np.fliplr(SHAPES["beam"]).tolist(), 3, 0, screen)
+    bit = Slantic(SHAPES["bit"], 4, 0, screen)
+    corner_r = Slantic(SHAPES["corner"], 5, 0, screen)
+    corner_l = Slantic(np.fliplr(SHAPES["corner"]).tolist(), 6, 0, screen)
+    crux = Slantic(SHAPES["crux"], 7, 0, screen)
+    fang_r = Slantic(SHAPES["fang"], 0, 1, screen)
+    fang_l = Slantic(np.fliplr(SHAPES["fang"]).tolist(), 1, 1, screen)
+    hexx = Slantic(SHAPES["hexx"], 2, 1, screen)
+    hill = Slantic(SHAPES["hill"], 3, 1, screen)
+    peak = Slantic(SHAPES["peak"], 4, 1, screen)
+    point = Slantic(SHAPES["point"], 5, 1, screen)
+    slant = Slantic(SHAPES["slant"], 6, 1, screen)
+    slope_r = Slantic(SHAPES["slope"], 7, 1, screen)
+    slope_l = Slantic(np.fliplr(SHAPES["slope"]).tolist(), 0, 2, screen)
+    spike_r = Slantic(SHAPES["spike"], 1, 2, screen)
+    spike_l = Slantic(np.fliplr(SHAPES["spike"]).tolist(), 2, 2, screen)
+    strip = Slantic(SHAPES["strip"], 3, 2, screen)
+    bonus = Slantic(SHAPES["bonus"], 4, 2, screen)
 
     return [
         bar_r,
@@ -212,18 +213,18 @@ def setup_tiles():
     ]
 
 def main():
-    global SCREEN, CLOCK
+    global screen, clock
     pygame.init()
-    SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    CLOCK = pygame.time.Clock()
-    FPS = 60
-    SCREEN.fill(WHITE)
+    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    clock = pygame.time.Clock()
+    fps = 60
+    screen.fill(WHITE)
 
     slantics = setup_tiles()
 
     while True:
         pygame.display.update()
-        SCREEN.fill(WHITE)
+        screen.fill(WHITE)
         drawGrid()
 
         for s in slantics:
@@ -245,7 +246,13 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONUP:
                 for s in slantics:
-                    s.drag = False
+                    # Snap to grid
+                    if s.drag:
+                        mult_x = math.floor(mouse_x/BLOCK_SIZE)
+                        mult_y = math.floor(mouse_y/BLOCK_SIZE)
+                        s.x = mult_x * BLOCK_SIZE
+                        s.y = mult_y * BLOCK_SIZE
+                        s.drag = False
 
             if event.type == pygame.KEYDOWN:
                 for s in slantics:
@@ -259,14 +266,13 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        CLOCK.tick(FPS)
-
+        clock.tick(fps)
 
 def drawGrid():
     for y in range(len(BOARD)):
         for x in range(len(BOARD[y])):
             rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
-            pygame.draw.rect(SCREEN, BLACK, rect, 1)
+            pygame.draw.rect(screen, BLACK, rect, 1)
 
 main()
 
