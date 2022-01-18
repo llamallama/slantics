@@ -10,6 +10,7 @@ BLUE = (0, 0, 255)
 WINDOW_HEIGHT = 800
 WINDOW_WIDTH = 800
 BLOCK_SIZE = 100
+MARGIN=1
 
 BOARD=[
     [0,0,0,0,0,0,0,0],
@@ -103,9 +104,9 @@ SHAPES = {
 
 
 class Slantic(object):
-    def __init__(self, shape, x, y, surface, size=BLOCK_SIZE, margin=1, padding=2):
-        self.x = x * BLOCK_SIZE + margin
-        self.y = y * BLOCK_SIZE + margin
+    def __init__(self, shape, x, y, surface, size=BLOCK_SIZE, padding=2):
+        self.x = x * BLOCK_SIZE + MARGIN
+        self.y = y * BLOCK_SIZE + MARGIN
         self.width = BLOCK_SIZE - padding
         self.height = BLOCK_SIZE - padding
         self.surface = surface
@@ -250,8 +251,8 @@ def main():
                     if s.drag:
                         mult_x = math.floor(mouse_x/BLOCK_SIZE)
                         mult_y = math.floor(mouse_y/BLOCK_SIZE)
-                        s.x = mult_x * BLOCK_SIZE
-                        s.y = mult_y * BLOCK_SIZE
+                        s.x = mult_x * BLOCK_SIZE + MARGIN
+                        s.y = mult_y * BLOCK_SIZE + MARGIN
                         s.drag = False
 
             if event.type == pygame.KEYDOWN:
