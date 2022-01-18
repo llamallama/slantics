@@ -2,6 +2,7 @@
 import pygame
 import math
 import numpy as np
+import sys
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
