@@ -113,8 +113,9 @@ class Slantic(object):
         self.color_dark = BLUE
         self._dark = True
         self._coords = []
-        self.rect = self.drawSlantic()
         self.drag = False
+        self.rotation = 0
+        self.rect = self.drawSlantic()
 
     def drawSlantic(self):
         self._coords = [
@@ -134,6 +135,8 @@ class Slantic(object):
                 (self.x + self.width, self.y + self.height)
             ]
         ]
+
+        self._coords = np.rot90(self._coords, self.rotation).tolist()
 
         poly_list = []
 
@@ -157,7 +160,9 @@ class Slantic(object):
         self._dark = not self._dark
 
     def rotate(self):
-        self._coords = np.rot90(self._coords).tolist()
+        self.rotation += 1
+        if self.rotation == 4:
+            self.rotation = 0
 
 def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, SCREEN)
@@ -211,7 +216,7 @@ def main():
     pygame.init()
     SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     CLOCK = pygame.time.Clock()
-    FPS = 30
+    FPS = 60
     SCREEN.fill(WHITE)
 
     slantics = setup_tiles()
