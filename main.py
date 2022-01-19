@@ -169,6 +169,13 @@ class Slantic(object):
         if self.rotation == 4:
             self.rotation = 0
 
+    def _snap(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        mult_x = math.floor(mouse_x/BLOCK_SIZE)
+        mult_y = math.floor(mouse_y/BLOCK_SIZE)
+        self.x = mult_x * BLOCK_SIZE + MARGIN
+        self.y = mult_y * BLOCK_SIZE + MARGIN
+
     def drag(self):
         if self.enable_drag:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -181,9 +188,14 @@ class Slantic(object):
             self.x = mouse_x + self._offset_x
             self.y = mouse_y + self._offset_y
         else:
+            # Only snap to grid once while offset still has a value
+            if self._offset_x:
+                self._snap()
             # Keep offset at none until it is time to drag
             self._offset_x = None
             self._offset_y = None
+
+            self.enable_drag = False
 
 def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
@@ -247,6 +259,11 @@ def handle_mouse(event, slantics):
             if s.rect.collidepoint(pygame.mouse.get_pos()):
                 s.enable_drag = True
 
+    if event.type == pygame.MOUSEBUTTONUP:
+        for s in slantics:
+            s.enable_drag = False
+
+
 def main():
     global screen, clock
     pygame.init()
@@ -269,18 +286,6 @@ def main():
         for event in pygame.event.get():
 
             handle_mouse(event, slantics)
-
-            if event.type == pygame.MOUSEBUTTONUP:
-                for s in slantics:
-                    # Snap to grid
-                    if s.enable_drag:
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        mult_x = math.floor(mouse_x/BLOCK_SIZE)
-                        mult_y = math.floor(mouse_y/BLOCK_SIZE)
-                        s.x = mult_x * BLOCK_SIZE + MARGIN
-                        s.y = mult_y * BLOCK_SIZE + MARGIN
-                        s.enable_drag = False
-
             handle_keys(event, slantics)
 
             if event.type == pygame.QUIT:
@@ -296,5 +301,3 @@ def drawGrid():
             pygame.draw.rect(screen, BLACK, rect, 1)
 
 main()
-
-
