@@ -116,7 +116,9 @@ class Slantic(object):
         self.color_dark = BLUE
         self._dark = True
         self._coords = []
-        self.drag = False
+        self._offset_x = 0
+        self._offset_y = 0
+        self.enable_drag = False
         self.rotation = 0
         self.rect = self.drawSlantic()
 
@@ -167,6 +169,18 @@ class Slantic(object):
         if self.rotation == 4:
             self.rotation = 0
 
+    def drag(self):
+        if self.enable_drag:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self.x = mouse_x + self._offset_x
+            self.y = mouse_y + self._offset_y
+        else:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            self._offset_x = self.x - mouse_x
+            self._offset_y = self.y - mouse_y
+            if self.x < 100 and self.y < 100:
+                print(self._offset_x, self._offset_y)
+
 def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
     bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, screen)
@@ -214,6 +228,21 @@ def setup_tiles():
         bonus
     ]
 
+def handle_keys(event, slantics):
+    if event.type == pygame.KEYDOWN:
+        for s in slantics:
+            if s.rect.collidepoint(pygame.mouse.get_pos()):
+                if event.key == pygame.K_r:
+                    s.rotate()
+                if event.key == pygame.K_f:
+                    s.flip()
+
+def handle_mouse(event, slantics):
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        for s in slantics:
+            if s.rect.collidepoint(pygame.mouse.get_pos()):
+                s.enable_drag = True
+
 def main():
     global screen, clock
     pygame.init()
@@ -231,38 +260,24 @@ def main():
 
         for s in slantics:
             s.drawSlantic()
-
-            if s.drag:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                s.x = mouse_x + offset_x
-                s.y = mouse_y + offset_y
+            s.drag()
 
         for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for s in slantics:
-                    if s.rect.collidepoint(pygame.mouse.get_pos()):
-                        s.drag = True
-                        mouse_x, mouse_y = pygame.mouse.get_pos()
-                        offset_x = s.x - mouse_x
-                        offset_y = s.y - mouse_y
+
+            handle_mouse(event, slantics)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 for s in slantics:
                     # Snap to grid
-                    if s.drag:
+                    if s.enable_drag:
+                        mouse_x, mouse_y = pygame.mouse.get_pos()
                         mult_x = math.floor(mouse_x/BLOCK_SIZE)
                         mult_y = math.floor(mouse_y/BLOCK_SIZE)
                         s.x = mult_x * BLOCK_SIZE + MARGIN
                         s.y = mult_y * BLOCK_SIZE + MARGIN
-                        s.drag = False
+                        s.enable_drag = False
 
-            if event.type == pygame.KEYDOWN:
-                for s in slantics:
-                    if s.rect.collidepoint(pygame.mouse.get_pos()):
-                        if event.key == pygame.K_r:
-                            s.rotate()
-                        if event.key == pygame.K_f:
-                            s.flip()
+            handle_keys(event, slantics)
 
             if event.type == pygame.QUIT:
                 pygame.quit()
