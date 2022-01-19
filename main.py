@@ -263,6 +263,11 @@ def handle_mouse(event, slantics):
         for s in slantics:
             s.enable_drag = False
 
+def drawGrid():
+    for y in range(len(BOARD)):
+        for x in range(len(BOARD[y])):
+            rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+            pygame.draw.rect(screen, BLACK, rect, 1)
 
 def main():
     global screen, clock
@@ -284,7 +289,6 @@ def main():
             s.drag()
 
         for event in pygame.event.get():
-
             handle_mouse(event, slantics)
             handle_keys(event, slantics)
 
@@ -293,11 +297,5 @@ def main():
                 sys.exit()
 
         clock.tick(fps)
-
-def drawGrid():
-    for y in range(len(BOARD)):
-        for x in range(len(BOARD[y])):
-            rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
-            pygame.draw.rect(screen, BLACK, rect, 1)
 
 main()
