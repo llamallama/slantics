@@ -183,10 +183,7 @@ class Slantic(object):
         for s in slantics:
             if self != s:
                 # Space is taken. Go back to original position
-                if (
-                    mouse_x >= s.x and mouse_x < s.x + BLOCK_SIZE and
-                    mouse_y >= s.y and mouse_y < s.y + BLOCK_SIZE
-                ):
+                if self.rect.colliderect(s.rect):
                     self.x = self._og_x
                     self.y = self._og_y
                     break
