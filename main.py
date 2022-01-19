@@ -116,8 +116,8 @@ class Slantic(object):
         self.color_dark = BLUE
         self._dark = True
         self._coords = []
-        self._offset_x = 0
-        self._offset_y = 0
+        self._offset_x = None
+        self._offset_y = None
         self.enable_drag = False
         self.rotation = 0
         self.rect = self.drawSlantic()
@@ -172,14 +172,18 @@ class Slantic(object):
     def drag(self):
         if self.enable_drag:
             mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # Set the mouse offset before we drag
+            if not self._offset_x:
+                self._offset_x = self.x - mouse_x
+                self._offset_y = self.y - mouse_y
+
             self.x = mouse_x + self._offset_x
             self.y = mouse_y + self._offset_y
         else:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            self._offset_x = self.x - mouse_x
-            self._offset_y = self.y - mouse_y
-            if self.x < 100 and self.y < 100:
-                print(self._offset_x, self._offset_y)
+            # Keep offset at none until it is time to drag
+            self._offset_x = None
+            self._offset_y = None
 
 def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
