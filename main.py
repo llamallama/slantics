@@ -11,17 +11,17 @@ BLUE = (0, 0, 255)
 WINDOW_HEIGHT = 800
 WINDOW_WIDTH = 800
 BLOCK_SIZE = 100
-MARGIN=1
+MARGIN = 1
 
-BOARD=[
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0]
+BOARD = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0]
 ]
 
 
@@ -106,8 +106,13 @@ SHAPES = {
 
 class Slantic(object):
     def __init__(self, shape, x, y, surface, size=BLOCK_SIZE, padding=2):
-        self.x = x * BLOCK_SIZE + MARGIN
-        self.y = y * BLOCK_SIZE + MARGIN
+        # _og vars are used to track previous position. This is useful
+        # to prevent one shape to be dropped onto another. If that happens
+        # it will return to its original position.
+
+        self.x = self._og_x = x * BLOCK_SIZE + MARGIN
+        self.y = self._og_y = y * BLOCK_SIZE + MARGIN
+
         self.width = BLOCK_SIZE - padding
         self.height = BLOCK_SIZE - padding
         self.surface = surface
@@ -132,8 +137,8 @@ class Slantic(object):
             [
                 (self.x, self.y + self.height/2),
                 (self.x + self.width/2, self.y + self.height/2),
-                (self.x + self.width, self.y + self.height/2)]
-            ,
+                (self.x + self.width, self.y + self.height/2)
+            ],
             [
                 (self.x, self.y + self.height),
                 (self.x + self.width/2, self.y + self.height),
@@ -148,13 +153,15 @@ class Slantic(object):
         fill_color = self.color_light if self._dark else self.color_dark
         poly_color = self.color_dark if self._dark else self.color_light
 
-        for num in range(1,10):
+        for num in range(1, 10):
             for index, s in enumerate(self.shape):
                 if num in s:
                     poly_list.append(self._coords[index][s.index(num)])
                     continue
 
-        self.rect = pygame.draw.rect(self.surface, fill_color, (self.x, self.y, self.width, self.height))
+        self.rect = pygame.draw.rect(
+            self.surface, fill_color, (self.x, self.y, self.width, self.height)
+        )
 
         if len(poly_list) > 2:
             pygame.draw.polygon(self.surface, poly_color, poly_list)
@@ -169,12 +176,29 @@ class Slantic(object):
         if self.rotation == 4:
             self.rotation = 0
 
+    # Snap to grid or snap back to original position if on top of another piece
     def _snap(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
-        mult_x = math.floor(mouse_x/BLOCK_SIZE)
-        mult_y = math.floor(mouse_y/BLOCK_SIZE)
-        self.x = mult_x * BLOCK_SIZE + MARGIN
-        self.y = mult_y * BLOCK_SIZE + MARGIN
+
+        for s in slantics:
+            if self != s:
+                # Space is taken. Go back to original position
+                if (
+                    mouse_x >= s.x and mouse_x < s.x + BLOCK_SIZE and
+                    mouse_y >= s.y and mouse_y < s.y + BLOCK_SIZE
+                ):
+                    self.x = self._og_x
+                    self.y = self._og_y
+                    break
+                # Space is free. Stay here.
+                else:
+                    mult_x = math.floor(mouse_x/BLOCK_SIZE)
+                    mult_y = math.floor(mouse_y/BLOCK_SIZE)
+                    self.x = mult_x * BLOCK_SIZE + MARGIN
+                    self.y = mult_y * BLOCK_SIZE + MARGIN
+
+        self._og_x = self.x
+        self._og_y = self.y
 
     def drag(self):
         if self.enable_drag:
@@ -196,6 +220,7 @@ class Slantic(object):
             self._offset_y = None
 
             self.enable_drag = False
+
 
 def setup_tiles():
     bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
@@ -244,7 +269,8 @@ def setup_tiles():
         bonus
     ]
 
-def handle_keys(event, slantics):
+
+def handle_keys(event):
     if event.type == pygame.KEYDOWN:
         for s in slantics:
             if s.rect.collidepoint(pygame.mouse.get_pos()):
@@ -253,7 +279,8 @@ def handle_keys(event, slantics):
                 if event.key == pygame.K_f:
                     s.flip()
 
-def handle_mouse(event, slantics):
+
+def handle_mouse(event):
     if event.type == pygame.MOUSEBUTTONDOWN:
         for s in slantics:
             if s.rect.collidepoint(pygame.mouse.get_pos()):
@@ -263,11 +290,15 @@ def handle_mouse(event, slantics):
         for s in slantics:
             s.enable_drag = False
 
+
 def drawGrid():
     for y in range(len(BOARD)):
         for x in range(len(BOARD[y])):
-            rect = pygame.Rect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+            rect = pygame.Rect(
+                x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE
+            )
             pygame.draw.rect(screen, BLACK, rect, 1)
+
 
 def main():
     global screen, clock
@@ -277,6 +308,7 @@ def main():
     fps = 60
     screen.fill(WHITE)
 
+    global slantics
     slantics = setup_tiles()
 
     while True:
@@ -289,13 +321,14 @@ def main():
             s.drag()
 
         for event in pygame.event.get():
-            handle_mouse(event, slantics)
-            handle_keys(event, slantics)
+            handle_mouse(event)
+            handle_keys(event)
 
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
         clock.tick(fps)
+
 
 main()
