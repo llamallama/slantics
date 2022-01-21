@@ -3,27 +3,26 @@ import pygame
 import math
 import numpy as np
 import sys
+import random
+import itertools
+
+pygame.init()
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
-WINDOW_HEIGHT = 800
-WINDOW_WIDTH = 800
-BLOCK_SIZE = 100
+LIGHT_BLUE = (173, 216, 230)
+GRID_WIDTH = 30
+GRID_HEIGHT = 15
+# BLOCK_SIZE = 75
+BLOCK_SIZE = math.floor((pygame.display.Info().current_w - 100) / GRID_WIDTH)
+WINDOW_WIDTH = BLOCK_SIZE * GRID_WIDTH
+WINDOW_HEIGHT = BLOCK_SIZE * GRID_HEIGHT
 MARGIN = 1
 
-BOARD = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0]
-]
-
+# Create the initial board. It is a two dimensional array of zeros
+BOARD = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
 SHAPES = {
     "bar": [
@@ -117,7 +116,7 @@ class Slantic(object):
         self.height = BLOCK_SIZE - padding
         self.surface = surface
         self.shape = shape
-        self.color_light = WHITE
+        self.color_light = LIGHT_BLUE
         self.color_dark = BLUE
         self._dark = True
         self._coords = []
@@ -183,7 +182,8 @@ class Slantic(object):
         for s in slantics:
             if self != s:
                 # Space is taken. Go back to original position
-                if self.rect.colliderect(s.rect):
+
+                if s.rect.collidepoint(pygame.mouse.get_pos()):
                     self.x = self._og_x
                     self.y = self._og_y
                     break
@@ -220,51 +220,38 @@ class Slantic(object):
 
 
 def setup_tiles():
-    bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
-    bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, screen)
-    beam_r = Slantic(SHAPES["beam"], 2, 0, screen)
-    beam_l = Slantic(np.fliplr(SHAPES["beam"]).tolist(), 3, 0, screen)
-    bit = Slantic(SHAPES["bit"], 4, 0, screen)
-    corner_r = Slantic(SHAPES["corner"], 5, 0, screen)
-    corner_l = Slantic(np.fliplr(SHAPES["corner"]).tolist(), 6, 0, screen)
-    crux = Slantic(SHAPES["crux"], 7, 0, screen)
-    fang_r = Slantic(SHAPES["fang"], 0, 1, screen)
-    fang_l = Slantic(np.fliplr(SHAPES["fang"]).tolist(), 1, 1, screen)
-    hexx = Slantic(SHAPES["hexx"], 2, 1, screen)
-    hill = Slantic(SHAPES["hill"], 3, 1, screen)
-    peak = Slantic(SHAPES["peak"], 4, 1, screen)
-    point = Slantic(SHAPES["point"], 5, 1, screen)
-    slant = Slantic(SHAPES["slant"], 6, 1, screen)
-    slope_r = Slantic(SHAPES["slope"], 7, 1, screen)
-    slope_l = Slantic(np.fliplr(SHAPES["slope"]).tolist(), 0, 2, screen)
-    spike_r = Slantic(SHAPES["spike"], 1, 2, screen)
-    spike_l = Slantic(np.fliplr(SHAPES["spike"]).tolist(), 2, 2, screen)
-    strip = Slantic(SHAPES["strip"], 3, 2, screen)
-    bonus = Slantic(SHAPES["bonus"], 4, 2, screen)
+    tiles = []
 
-    return [
-        bar_r,
-        bar_l,
-        beam_r,
-        beam_l,
-        bit,
-        corner_r,
-        corner_l,
-        crux,
-        fang_r,
-        fang_l,
-        hexx,
-        hill,
-        peak,
-        point,
-        slant,
-        slope_r,
-        slope_l,
-        spike_r,
-        spike_l,
-        strip,
-        bonus
-    ]
+    for y, x in itertools.product(range(GRID_HEIGHT), range(GRID_WIDTH)):
+        # Only deal the tiles around the edges of the board
+        if (y == 0 or y == GRID_HEIGHT - 1) or (x == 0 or x == GRID_WIDTH - 1):
+            tiles.append(
+                Slantic(SHAPES[random.choice(list(SHAPES))], x, y, screen)
+            )
+
+    # bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
+    # bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, screen)
+    # beam_r = Slantic(SHAPES["beam"], 2, 0, screen)
+    # beam_l = Slantic(np.fliplr(SHAPES["beam"]).tolist(), 3, 0, screen)
+    # bit = Slantic(SHAPES["bit"], 4, 0, screen)
+    # corner_r = Slantic(SHAPES["corner"], 5, 0, screen)
+    # corner_l = Slantic(np.fliplr(SHAPES["corner"]).tolist(), 6, 0, screen)
+    # crux = Slantic(SHAPES["crux"], 7, 0, screen)
+    # fang_r = Slantic(SHAPES["fang"], 0, 1, screen)
+    # fang_l = Slantic(np.fliplr(SHAPES["fang"]).tolist(), 1, 1, screen)
+    # hexx = Slantic(SHAPES["hexx"], 2, 1, screen)
+    # hill = Slantic(SHAPES["hill"], 3, 1, screen)
+    # peak = Slantic(SHAPES["peak"], 4, 1, screen)
+    # point = Slantic(SHAPES["point"], 5, 1, screen)
+    # slant = Slantic(SHAPES["slant"], 6, 1, screen)
+    # slope_r = Slantic(SHAPES["slope"], 7, 1, screen)
+    # slope_l = Slantic(np.fliplr(SHAPES["slope"]).tolist(), 0, 2, screen)
+    # spike_r = Slantic(SHAPES["spike"], 1, 2, screen)
+    # spike_l = Slantic(np.fliplr(SHAPES["spike"]).tolist(), 2, 2, screen)
+    # strip = Slantic(SHAPES["strip"], 3, 2, screen)
+    # bonus = Slantic(SHAPES["bonus"], 4, 2, screen)
+
+    return tiles
 
 
 def handle_keys(event):
@@ -299,7 +286,6 @@ def drawGrid():
 
 def main():
     global screen, clock
-    pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     clock = pygame.time.Clock()
     fps = 60
