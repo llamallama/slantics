@@ -15,7 +15,6 @@ BLUE = (0, 0, 255)
 LIGHT_BLUE = (173, 216, 230)
 GRID_WIDTH = 30
 GRID_HEIGHT = 15
-# BLOCK_SIZE = 75
 BLOCK_SIZE = math.floor((pygame.display.Info().current_w - 100) / GRID_WIDTH)
 WINDOW_WIDTH = BLOCK_SIZE * GRID_WIDTH
 WINDOW_HEIGHT = BLOCK_SIZE * GRID_HEIGHT
@@ -222,12 +221,19 @@ class Slantic(object):
 def setup_tiles():
     tiles = []
 
+    # List to allow for mirror versions of
+    allow_flip = ["bar", "beam", "corner", "fang", "slope", "spike"]
+
     for y, x in itertools.product(range(GRID_HEIGHT), range(GRID_WIDTH)):
         # Only deal the tiles around the edges of the board
         if (y == 0 or y == GRID_HEIGHT - 1) or (x == 0 or x == GRID_WIDTH - 1):
-            tiles.append(
-                Slantic(SHAPES[random.choice(list(SHAPES))], x, y, screen)
-            )
+            name = random.choice(list(SHAPES))
+            shape = SHAPES[name]
+
+            if name in allow_flip and random.choice((True, False)):
+                shape = np.fliplr(shape).tolist()
+
+            tiles.append(Slantic(shape, x, y, screen))
 
     # bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
     # bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, screen)
