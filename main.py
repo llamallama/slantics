@@ -271,6 +271,7 @@ def drawGrid():
 def main():
     global screen, clock
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    pygame.display.set_caption("Slantics")
     clock = pygame.time.Clock()
     fps = 60
     screen.fill(WHITE)
