@@ -13,8 +13,10 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 LIGHT_BLUE = (173, 216, 230)
-GRID_WIDTH = 30
-GRID_HEIGHT = 15
+RES_WIDTH = pygame.display.Info().current_w
+RES_HEIGHT = pygame.display.Info().current_h
+GRID_WIDTH = 30 if RES_WIDTH > RES_HEIGHT else 15
+GRID_HEIGHT = 15 if RES_WIDTH > RES_HEIGHT else 23
 BLOCK_SIZE = math.floor((pygame.display.Info().current_w - 100) / GRID_WIDTH)
 WINDOW_WIDTH = BLOCK_SIZE * GRID_WIDTH
 WINDOW_HEIGHT = BLOCK_SIZE * GRID_HEIGHT
@@ -181,13 +183,12 @@ class Slantic(object):
         for s in slantics:
             if self != s:
                 # Space is taken. Go back to original position
-
                 if s.rect.collidepoint(pygame.mouse.get_pos()):
                     self.x = self._og_x
                     self.y = self._og_y
                     break
-                # Space is free. Stay here.
                 else:
+                    # Space is free. Stay here.
                     mult_x = math.floor(mouse_x/BLOCK_SIZE)
                     mult_y = math.floor(mouse_y/BLOCK_SIZE)
                     self.x = mult_x * BLOCK_SIZE + MARGIN
@@ -213,9 +214,10 @@ class Slantic(object):
             self.y = mouse_y + self._offset_y
         else:
             # Only snap to grid once while offset still has a value
+            # Drop is called on every tile all the time. Watching offset
+            # lets us know when to call drop and only call it once.
             if self._offset_x:
                 self._drop()
-
 
 
 def setup_tiles():
