@@ -174,8 +174,8 @@ class Slantic(object):
         if self.rotation == 4:
             self.rotation = 0
 
-    # Snap to grid or snap back to original position if on top of another piece
-    def _snap(self):
+    # Handle dropping after a drag
+    def _drop(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         for s in slantics:
@@ -196,6 +196,10 @@ class Slantic(object):
         self._og_x = self.x
         self._og_y = self.y
 
+        # Done dragging. Reset offsets
+        self._offset_x = None
+        self._offset_y = None
+
     def drag(self):
         if self.enable_drag:
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -210,12 +214,8 @@ class Slantic(object):
         else:
             # Only snap to grid once while offset still has a value
             if self._offset_x:
-                self._snap()
-            # Keep offset at none until it is time to drag
-            self._offset_x = None
-            self._offset_y = None
+                self._drop()
 
-            self.enable_drag = False
 
 
 def setup_tiles():
