@@ -235,28 +235,6 @@ def setup_tiles():
 
             tiles.append(Slantic(shape, x, y, screen))
 
-    # bar_r = Slantic(SHAPES["bar"], 0, 0, screen)
-    # bar_l = Slantic(np.fliplr(SHAPES["bar"]).tolist(), 1, 0, screen)
-    # beam_r = Slantic(SHAPES["beam"], 2, 0, screen)
-    # beam_l = Slantic(np.fliplr(SHAPES["beam"]).tolist(), 3, 0, screen)
-    # bit = Slantic(SHAPES["bit"], 4, 0, screen)
-    # corner_r = Slantic(SHAPES["corner"], 5, 0, screen)
-    # corner_l = Slantic(np.fliplr(SHAPES["corner"]).tolist(), 6, 0, screen)
-    # crux = Slantic(SHAPES["crux"], 7, 0, screen)
-    # fang_r = Slantic(SHAPES["fang"], 0, 1, screen)
-    # fang_l = Slantic(np.fliplr(SHAPES["fang"]).tolist(), 1, 1, screen)
-    # hexx = Slantic(SHAPES["hexx"], 2, 1, screen)
-    # hill = Slantic(SHAPES["hill"], 3, 1, screen)
-    # peak = Slantic(SHAPES["peak"], 4, 1, screen)
-    # point = Slantic(SHAPES["point"], 5, 1, screen)
-    # slant = Slantic(SHAPES["slant"], 6, 1, screen)
-    # slope_r = Slantic(SHAPES["slope"], 7, 1, screen)
-    # slope_l = Slantic(np.fliplr(SHAPES["slope"]).tolist(), 0, 2, screen)
-    # spike_r = Slantic(SHAPES["spike"], 1, 2, screen)
-    # spike_l = Slantic(np.fliplr(SHAPES["spike"]).tolist(), 2, 2, screen)
-    # strip = Slantic(SHAPES["strip"], 3, 2, screen)
-    # bonus = Slantic(SHAPES["bonus"], 4, 2, screen)
-
     return tiles
 
 
