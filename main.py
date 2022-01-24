@@ -106,12 +106,12 @@ SHAPES = {
 
 class Slantic(object):
     def __init__(self, shape, x, y, surface, size=BLOCK_SIZE, padding=2):
-        # _og vars are used to track previous position. This is useful
+        # og vars are used to track previous position. This is useful
         # to prevent one shape to be dropped onto another. If that happens
         # it will return to its original position.
 
-        self.x = self._og_x = x * BLOCK_SIZE + MARGIN
-        self.y = self._og_y = y * BLOCK_SIZE + MARGIN
+        self.x = self.og_x = x * BLOCK_SIZE + MARGIN
+        self.y = self.og_y = y * BLOCK_SIZE + MARGIN
 
         self.width = BLOCK_SIZE - padding
         self.height = BLOCK_SIZE - padding
@@ -184,8 +184,8 @@ class Slantic(object):
             if self != s:
                 # Space is taken. Go back to original position
                 if s.rect.collidepoint(pygame.mouse.get_pos()):
-                    self.x = self._og_x
-                    self.y = self._og_y
+                    s.x = s.og_x = self.og_x
+                    s.y = s.og_y = self.og_y
                     break
                 else:
                     # Space is free. Stay here.
@@ -194,8 +194,8 @@ class Slantic(object):
                     self.x = mult_x * BLOCK_SIZE + MARGIN
                     self.y = mult_y * BLOCK_SIZE + MARGIN
 
-        self._og_x = self.x
-        self._og_y = self.y
+        self.og_x = self.x
+        self.og_y = self.y
 
         # Done dragging. Reset offsets
         self._offset_x = None
@@ -213,8 +213,8 @@ class Slantic(object):
             self.x = mouse_x + self._offset_x
             self.y = mouse_y + self._offset_y
         else:
-            # Only snap to grid once while offset still has a value
-            # Drop is called on every tile all the time. Watching offset
+            # Only drop if offset still has a value
+            # Drag is called on every tile all the time. Watching offset
             # lets us know when to call drop and only call it once.
             if self._offset_x:
                 self._drop()
