@@ -119,6 +119,7 @@ class Slantic(object):
         self.shape = shape
         self.color_light = LIGHT_BLUE
         self.color_dark = BLUE
+        self.group = False
         self._dark = True
         self._coords = []
         self._offset_x = None
@@ -177,7 +178,7 @@ class Slantic(object):
             self.rotation = 0
 
     # Handle dropping after a drag
-    def _drop(self):
+    def drop(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         for s in slantics:
@@ -212,12 +213,6 @@ class Slantic(object):
 
             self.x = mouse_x + self._offset_x
             self.y = mouse_y + self._offset_y
-        else:
-            # Only drop if offset still has a value
-            # Drag is called on every tile all the time. Watching offset
-            # lets us know when to call drop and only call it once.
-            if self._offset_x:
-                self._drop()
 
 
 def setup_tiles():
@@ -248,6 +243,9 @@ def handle_keys(event):
                     s.rotate()
                 if event.key == pygame.K_f:
                     s.flip()
+                if event.key == pygame.K_f:
+                    s.group = not s.group
+        refresh()
 
 
 def handle_mouse(event):
@@ -258,7 +256,10 @@ def handle_mouse(event):
 
     if event.type == pygame.MOUSEBUTTONUP:
         for s in slantics:
-            s.enable_drag = False
+            if(s.enable_drag):
+                s.enable_drag = False
+                s.drop()
+        refresh()
 
 
 def drawGrid():
@@ -270,24 +271,32 @@ def drawGrid():
             pygame.draw.rect(screen, BLACK, rect, 1)
 
 
+# A wrapper function that redraws the background, grid, and all slantics
+def refresh():
+    screen.fill(WHITE)
+    drawGrid()
+    for s in slantics:
+        s.drawSlantic()
+    pygame.display.update()
+
+
 def main():
     global screen, clock
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Slantics")
     clock = pygame.time.Clock()
     fps = 60
-    screen.fill(WHITE)
-
     global slantics
     slantics = setup_tiles()
+    refresh()
 
     while True:
-        pygame.display.update()
-        screen.fill(WHITE)
-        drawGrid()
+        # screen.fill(WHITE)
+        # drawGrid()
 
         for s in slantics:
-            s.drawSlantic()
+            if s.enable_drag:
+                refresh()
             s.drag()
 
         for event in pygame.event.get():
