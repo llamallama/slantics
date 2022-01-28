@@ -296,8 +296,8 @@ def main():
 
         for s in slantics:
             if s.enable_drag:
+                s.drag()
                 refresh()
-            s.drag()
 
         for event in pygame.event.get():
             handle_mouse(event)
