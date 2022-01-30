@@ -22,9 +22,6 @@ WINDOW_WIDTH = BLOCK_SIZE * GRID_WIDTH
 WINDOW_HEIGHT = BLOCK_SIZE * GRID_HEIGHT
 MARGIN = 1
 
-# Create the initial board. It is a two dimensional array of zeros
-BOARD = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
-
 SHAPES = {
     "bar": [
         [0, 0, 1],
@@ -102,6 +99,12 @@ SHAPES = {
         [0, 0, 0]
     ]
 }
+
+# The initial slantics global
+slantics = []
+
+# Create the initial board. It is a two dimensional array of zeros
+board = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
 
 class Slantic(object):
@@ -215,14 +218,16 @@ class Slantic(object):
             self.y = mouse_y + self._offset_y
 
 
-def setup_tiles():
-    tiles = []
+# Random selects and draws the inital set of slantics arranged around the
+# edges of the board
+def setup_slantics(screen):
+    slantics = []
 
     # List to allow for mirror versions of
     allow_flip = ["bar", "beam", "corner", "fang", "slope", "spike"]
 
     for y, x in itertools.product(range(GRID_HEIGHT), range(GRID_WIDTH)):
-        # Only deal the tiles around the edges of the board
+        # Only deal the slantics around the edges of the board
         if (y == 0 or y == GRID_HEIGHT - 1) or (x == 0 or x == GRID_WIDTH - 1):
             name = random.choice(list(SHAPES))
             shape = SHAPES[name]
@@ -230,12 +235,26 @@ def setup_tiles():
             if name in allow_flip and random.choice((True, False)):
                 shape = np.fliplr(shape).tolist()
 
-            tiles.append(Slantic(shape, x, y, screen))
+            slantics.append(Slantic(shape, x, y, screen))
 
-    return tiles
+    return slantics
 
 
-def handle_keys(event):
+# Sync the position of the Slantics with their position in the board list
+def sync_board():
+
+    # reset the board
+    global board
+    board = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
+
+    # then update it with the current clantic positions
+    for s in slantics:
+        board_y = int((s.y - 1)/BLOCK_SIZE)
+        board_x = int((s.x - 1)/BLOCK_SIZE)
+        board[board_y][board_x] = s
+
+
+def handle_keys(event, screen):
     if event.type == pygame.KEYDOWN:
         for s in slantics:
             if s.rect.collidepoint(pygame.mouse.get_pos()):
@@ -245,10 +264,10 @@ def handle_keys(event):
                     s.flip()
                 if event.key == pygame.K_f:
                     s.group = not s.group
-        refresh()
+        refresh(screen)
 
 
-def handle_mouse(event):
+def handle_mouse(event, screen):
     if event.type == pygame.MOUSEBUTTONDOWN:
         for s in slantics:
             if s.rect.collidepoint(pygame.mouse.get_pos()):
@@ -259,12 +278,14 @@ def handle_mouse(event):
             if(s.enable_drag):
                 s.enable_drag = False
                 s.drop()
-        refresh()
+
+        sync_board()
+        refresh(screen)
 
 
-def drawGrid():
-    for y in range(len(BOARD)):
-        for x in range(len(BOARD[y])):
+def draw_grid(screen):
+    for y in range(len(board)):
+        for x in range(len(board[y])):
             rect = pygame.Rect(
                 x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE
             )
@@ -272,36 +293,47 @@ def drawGrid():
 
 
 # A wrapper function that redraws the background, grid, and all slantics
-def refresh():
+def refresh(screen):
     screen.fill(WHITE)
-    drawGrid()
+    draw_grid(screen)
     for s in slantics:
         s.drawSlantic()
     pygame.display.update()
 
 
 def main():
-    global screen, clock
+    print(WINDOW_WIDTH, WINDOW_HEIGHT)
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     pygame.display.set_caption("Slantics")
     clock = pygame.time.Clock()
     fps = 60
+
+    # Hack to work around weird pygame bug where screen is black at
+    # certain window sizes
+    initial_draw = False
+
+    screen.fill(WHITE)
+
     global slantics
-    slantics = setup_tiles()
-    refresh()
+    slantics = setup_slantics(screen)
+    refresh(screen)
+    sync_board()
 
     while True:
-        # screen.fill(WHITE)
-        # drawGrid()
+        # Hack to work around weird pygame bug where screen is black at
+        # certain window sizes
+        if not initial_draw:
+            refresh(screen)
+            initial_draw = not initial_draw
 
         for s in slantics:
             if s.enable_drag:
                 s.drag()
-                refresh()
+                refresh(screen)
 
         for event in pygame.event.get():
-            handle_mouse(event)
-            handle_keys(event)
+            handle_mouse(event, screen)
+            handle_keys(event, screen)
 
             if event.type == pygame.QUIT:
                 pygame.quit()
