@@ -100,9 +100,6 @@ SHAPES = {
     ]
 }
 
-# The initial slantics global
-slantics = []
-
 # Create the initial board. It is a two dimensional array of zeros
 board = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
@@ -271,6 +268,9 @@ def handle_mouse(event, screen, slantics):
     if event.type == pygame.MOUSEBUTTONDOWN:
         for s in slantics:
             if s.rect.collidepoint(pygame.mouse.get_pos()):
+                # Move the clicked slantic to the top
+                slantics.append(slantics.pop(slantics.index(s)))
+
                 s.enable_drag = True
 
     if event.type == pygame.MOUSEBUTTONUP:
