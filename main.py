@@ -182,7 +182,7 @@ class Slantic(object):
 
         for slantic in slantics:
             if self != slantic:
-                # Space is taken. Go back to original position
+                # Space is taken by another. Swap spaces with it.
                 if slantic.rect.collidepoint(pygame.mouse.get_pos()):
                     slantic.x = slantic.og_x = self.og_x
                     slantic.y = slantic.og_y = self.og_y
@@ -207,6 +207,8 @@ class Slantic(object):
                             if slantic != self:
                                 slantic.x += self.x - prev_x
                                 slantic.y += self.y - prev_y
+                                slantic.og_x = slantic.x
+                                slantic.og_y = slantic.y
 
         self.og_x = self.x
         self.og_y = self.y
