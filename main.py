@@ -119,7 +119,6 @@ class Slantic(object):
         self.shape = shape
         self.color_light = LIGHT_BLUE
         self.color_dark = BLUE
-        self.group = False
         self._dark = True
         self._coords = []
         self._offset_x = None
@@ -178,22 +177,36 @@ class Slantic(object):
             self.rotation = 0
 
     # Handle dropping after a drag
-    def drop(self, slantics):
+    def drop(self, slantics, group):
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
-        for s in slantics:
-            if self != s:
+        for slantic in slantics:
+            if self != slantic:
                 # Space is taken. Go back to original position
-                if s.rect.collidepoint(pygame.mouse.get_pos()):
-                    s.x = s.og_x = self.og_x
-                    s.y = s.og_y = self.og_y
+                if slantic.rect.collidepoint(pygame.mouse.get_pos()):
+                    slantic.x = slantic.og_x = self.og_x
+                    slantic.y = slantic.og_y = self.og_y
                     break
                 else:
                     # Space is free. Stay here.
+
+                    # Get the previous position so we know how much to move the
+                    # grouped slantics
+                    prev_x = self.x
+                    prev_y = self.y
+
                     mult_x = math.floor(mouse_x/BLOCK_SIZE)
                     mult_y = math.floor(mouse_y/BLOCK_SIZE)
                     self.x = mult_x * BLOCK_SIZE + MARGIN
                     self.y = mult_y * BLOCK_SIZE + MARGIN
+
+                    # Drop grouped slantics
+
+                    if self in group:
+                        for slantic in group:
+                            if slantic != self:
+                                slantic.x += self.x - prev_x
+                                slantic.y += self.y - prev_y
 
         self.og_x = self.x
         self.og_y = self.y
@@ -202,7 +215,7 @@ class Slantic(object):
         self._offset_x = None
         self._offset_y = None
 
-    def drag(self):
+    def drag(self, group):
         if self.enable_drag:
             mouse_x, mouse_y = pygame.mouse.get_pos()
 
@@ -211,8 +224,21 @@ class Slantic(object):
                 self._offset_x = self.x - mouse_x
                 self._offset_y = self.y - mouse_y
 
+            # Get the previous position so we know how much to move the grouped
+            # slantics
+            prev_x = self.x
+            prev_y = self.y
+
+            # Move to where the mouse is
             self.x = mouse_x + self._offset_x
             self.y = mouse_y + self._offset_y
+
+            # Drag grouped items along with us
+            if self in group:
+                for slantic in group:
+                    if slantic != self:
+                        slantic.x += self.x - prev_x
+                        slantic.y += self.y - prev_y
 
 
 # Random selects and draws the inital set of slantics arranged around the
@@ -245,39 +271,46 @@ def sync_board(slantics):
     board = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
     # then update it with the current clantic positions
-    for s in slantics:
-        board_y = int((s.y - 1)/BLOCK_SIZE)
-        board_x = int((s.x - 1)/BLOCK_SIZE)
-        board[board_y][board_x] = s
+    for slantic in slantics:
+        board_y = int((slantic.y - 1)/BLOCK_SIZE)
+        board_x = int((slantic.x - 1)/BLOCK_SIZE)
+        board[board_y][board_x] = slantic
 
 
-def handle_keys(event, screen, slantics):
+def group_slantic(group, slantic):
+    if slantic in group:
+        group.remove(slantic)
+    else:
+        group.append(slantic)
+
+
+def handle_keys(event, screen, slantics, group):
     if event.type == pygame.KEYDOWN:
-        for s in slantics:
-            if s.rect.collidepoint(pygame.mouse.get_pos()):
+        for slantic in slantics:
+            if slantic.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.key == pygame.K_r:
-                    s.rotate()
+                    slantic.rotate()
                 if event.key == pygame.K_f:
-                    s.flip()
-                if event.key == pygame.K_f:
-                    s.group = not s.group
+                    slantic.flip()
+                if event.key == pygame.K_g:
+                    group_slantic(group, slantic)
         refresh(screen, slantics)
 
 
-def handle_mouse(event, screen, slantics):
+def handle_mouse(event, screen, slantics, group):
     if event.type == pygame.MOUSEBUTTONDOWN:
-        for s in slantics:
-            if s.rect.collidepoint(pygame.mouse.get_pos()):
+        for slantic in slantics:
+            if slantic.rect.collidepoint(pygame.mouse.get_pos()):
                 # Move the clicked slantic to the top
-                slantics.append(slantics.pop(slantics.index(s)))
+                slantics.append(slantics.pop(slantics.index(slantic)))
 
-                s.enable_drag = True
+                slantic.enable_drag = True
 
     if event.type == pygame.MOUSEBUTTONUP:
-        for s in slantics:
-            if(s.enable_drag):
-                s.enable_drag = False
-                s.drop(slantics)
+        for slantic in slantics:
+            if(slantic.enable_drag):
+                slantic.enable_drag = False
+                slantic.drop(slantics, group)
 
         sync_board(slantics)
         refresh(screen, slantics)
@@ -296,8 +329,8 @@ def draw_grid(screen):
 def refresh(screen, slantics):
     screen.fill(WHITE)
     draw_grid(screen)
-    for s in slantics:
-        s.drawSlantic()
+    for slantic in slantics:
+        slantic.drawSlantic()
     pygame.display.update()
 
 
@@ -310,6 +343,8 @@ def main():
     screen.fill(WHITE)
 
     slantics = setup_slantics(screen)
+    group = []
+
     refresh(screen, slantics)
     sync_board(slantics)
 
@@ -324,14 +359,14 @@ def main():
             refresh(screen, slantics)
             initial_draw = not initial_draw
 
-        for s in slantics:
-            if s.enable_drag:
-                s.drag()
+        for slantic in slantics:
+            if slantic.enable_drag:
+                slantic.drag(group)
                 refresh(screen, slantics)
 
         for event in pygame.event.get():
-            handle_mouse(event, screen, slantics)
-            handle_keys(event, screen, slantics)
+            handle_mouse(event, screen, slantics, group)
+            handle_keys(event, screen, slantics, group)
 
             if event.type == pygame.QUIT:
                 pygame.quit()
