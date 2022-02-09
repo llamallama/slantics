@@ -121,8 +121,8 @@ class Slantic(object):
         self.color_dark = BLUE
         self._dark = True
         self._coords = []
-        self._offset_x = None
-        self._offset_y = None
+        self.offset_x = None
+        self.offset_y = None
         self.enable_drag = False
         self.rotation = 0
         self.rect = self.drawSlantic()
@@ -176,71 +176,6 @@ class Slantic(object):
         if self.rotation == 4:
             self.rotation = 0
 
-    # Handle dropping after a drag
-    def drop(self, slantics, group):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-
-        for slantic in slantics:
-            if self != slantic:
-                # Space is taken by another. Swap spaces with it.
-                if slantic.rect.collidepoint(pygame.mouse.get_pos()):
-                    slantic.x = slantic.og_x = self.og_x
-                    slantic.y = slantic.og_y = self.og_y
-                    break
-                else:
-                    # Space is free. Stay here.
-
-                    # Get the previous position so we know how much to move the
-                    # grouped slantics
-                    prev_x = self.x
-                    prev_y = self.y
-
-                    mult_x = math.floor(mouse_x/BLOCK_SIZE)
-                    mult_y = math.floor(mouse_y/BLOCK_SIZE)
-                    self.x = mult_x * BLOCK_SIZE + MARGIN
-                    self.y = mult_y * BLOCK_SIZE + MARGIN
-
-                    # Drop grouped slantics
-
-                    if self in group:
-                        for slantic in group:
-                            if slantic != self:
-                                slantic.x += self.x - prev_x
-                                slantic.y += self.y - prev_y
-                                slantic.og_x = slantic.x
-                                slantic.og_y = slantic.y
-
-        self.og_x = self.x
-        self.og_y = self.y
-
-        # Done dragging. Reset offsets
-        self._offset_x = None
-        self._offset_y = None
-
-    def drag(self, group):
-        if self.enable_drag:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-
-            # Set the mouse offset before we drag
-            if not self._offset_x:
-                self._offset_x = self.x - mouse_x
-                self._offset_y = self.y - mouse_y
-
-            # Get the previous position so we know how much to move the grouped
-            # slantics
-            prev_x = self.x
-            prev_y = self.y
-
-            # Move to where the mouse is
-            self.x = mouse_x + self._offset_x
-            self.y = mouse_y + self._offset_y
-
-            # Drag grouped items along with us
-            if self in group:
-                for slantic in group:
-                    if slantic != self:
-                        slantic.x += self.x - prev_x
-                        slantic.y += self.y - prev_y
 
 
 # Random selects and draws the inital set of slantics arranged around the
@@ -286,6 +221,73 @@ def group_slantic(group, slantic):
         group.append(slantic)
 
 
+def drag(slantic, group):
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+
+    # Set the mouse offset before we drag
+    if not slantic.offset_x:
+        slantic.offset_x = slantic.x - mouse_x
+        slantic.offset_y = slantic.y - mouse_y
+
+    # Get the previous position so we know how much to move the grouped
+    # slantics
+    prev_x = slantic.x
+    prev_y = slantic.y
+
+    # Move to where the mouse is
+    slantic.x = mouse_x + slantic.offset_x
+    slantic.y = mouse_y + slantic.offset_y
+
+    # Drag grouped items along with us
+    if slantic in group:
+        for slantic_g in group:
+            if slantic_g != slantic:
+                slantic_g.x += slantic.x - prev_x
+                slantic_g.y += slantic.y - prev_y
+
+
+# Handle dropping after a drag
+def drop(slantic, slantics, group):
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+
+    for s in slantics:
+        if slantic != s:
+            # Space is taken by another. Swap spaces with it.
+            if s.rect.collidepoint(pygame.mouse.get_pos()):
+                s.x = s.og_x = slantic.og_x
+                s.y = s.og_y = slantic.og_y
+                break
+            else:
+                # Space is free. Stay here.
+
+                # Get the previous position so we know how much to move the
+                # grouped slantics
+                prev_x = slantic.x
+                prev_y = slantic.y
+
+                mult_x = math.floor(mouse_x/BLOCK_SIZE)
+                mult_y = math.floor(mouse_y/BLOCK_SIZE)
+                slantic.x = mult_x * BLOCK_SIZE + MARGIN
+                slantic.y = mult_y * BLOCK_SIZE + MARGIN
+
+                # Drop grouped slantics
+
+                if slantic in group:
+                    for slantic_g in group:
+                        if slantic_g != slantic:
+                            slantic_g.x += slantic.x - prev_x
+                            slantic_g.y += slantic.y - prev_y
+                            slantic_g.og_x = slantic_g.x
+                            slantic_g.og_y = slantic_g.y
+
+    slantic.og_x = slantic.x
+    slantic.og_y = slantic.y
+
+    # Done dragging. Reset offsets
+    slantic.offset_x = None
+    slantic.offset_y = None
+
+
 def handle_keys(event, screen, slantics, group):
     if event.type == pygame.KEYDOWN:
         for slantic in slantics:
@@ -312,7 +314,7 @@ def handle_mouse(event, screen, slantics, group):
         for slantic in slantics:
             if(slantic.enable_drag):
                 slantic.enable_drag = False
-                slantic.drop(slantics, group)
+                drop(slantic, slantics, group)
 
         sync_board(slantics)
         refresh(screen, slantics)
@@ -363,7 +365,7 @@ def main():
 
         for slantic in slantics:
             if slantic.enable_drag:
-                slantic.drag(group)
+                drag(slantic, group)
                 refresh(screen, slantics)
 
         for event in pygame.event.get():
