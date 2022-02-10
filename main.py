@@ -302,12 +302,19 @@ def handle_keys(event, screen, slantics, group):
 
 def handle_mouse(event, screen, slantics, group):
     if event.type == pygame.MOUSEBUTTONDOWN:
-        for coords in list(slantics):
-            if slantics[coords].rect.collidepoint(pygame.mouse.get_pos()):
-                # Move the clicked slantic to the top
-                slantics[coords] = slantics.pop(coords)
+        x = math.floor(pygame.mouse.get_pos()[0]/BLOCK_SIZE)
+        y = math.floor(pygame.mouse.get_pos()[1]/BLOCK_SIZE)
 
-                slantics[coords].enable_drag = True
+        # Check if the coords key exist in the slantics dict
+        # and see if the mouse is over the slantic
+        if (
+            (x, y) in slantics and
+            slantics[(x, y)].rect.collidepoint(pygame.mouse.get_pos())
+        ):
+            # Move the clicked slantic to the top
+            slantics[(x, y)] = slantics.pop((x, y))
+
+            slantics[(x, y)].enable_drag = True
 
     if event.type == pygame.MOUSEBUTTONUP:
         for slantic in slantics.values():
