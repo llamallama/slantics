@@ -177,11 +177,10 @@ class Slantic(object):
             self.rotation = 0
 
 
-
 # Random selects and draws the inital set of slantics arranged around the
 # edges of the board
 def setup_slantics(screen):
-    slantics = []
+    slantics = {}
 
     # List to allow for mirror versions of
     allow_flip = ["bar", "beam", "corner", "fang", "slope", "spike"]
@@ -195,7 +194,7 @@ def setup_slantics(screen):
             if name in allow_flip and random.choice((True, False)):
                 shape = np.fliplr(shape).tolist()
 
-            slantics.append(Slantic(shape, x, y, screen))
+            slantics[(x, y)] = Slantic(shape, x, y, screen)
 
     return slantics
 
@@ -208,7 +207,7 @@ def sync_board(slantics):
     board = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
 
     # then update it with the current clantic positions
-    for slantic in slantics:
+    for slantic in slantics.values():
         board_y = int((slantic.y - 1)/BLOCK_SIZE)
         board_x = int((slantic.x - 1)/BLOCK_SIZE)
         board[board_y][board_x] = slantic
@@ -250,7 +249,7 @@ def drag(slantic, group):
 def drop(slantic, slantics, group):
     mouse_x, mouse_y = pygame.mouse.get_pos()
 
-    for s in slantics:
+    for s in slantics.values():
         if slantic != s:
             # Space is taken by another. Swap spaces with it.
             if s.rect.collidepoint(pygame.mouse.get_pos()):
@@ -290,7 +289,7 @@ def drop(slantic, slantics, group):
 
 def handle_keys(event, screen, slantics, group):
     if event.type == pygame.KEYDOWN:
-        for slantic in slantics:
+        for slantic in slantics.values():
             if slantic.rect.collidepoint(pygame.mouse.get_pos()):
                 if event.key == pygame.K_r:
                     slantic.rotate()
@@ -303,15 +302,15 @@ def handle_keys(event, screen, slantics, group):
 
 def handle_mouse(event, screen, slantics, group):
     if event.type == pygame.MOUSEBUTTONDOWN:
-        for slantic in slantics:
-            if slantic.rect.collidepoint(pygame.mouse.get_pos()):
+        for coords in list(slantics):
+            if slantics[coords].rect.collidepoint(pygame.mouse.get_pos()):
                 # Move the clicked slantic to the top
-                slantics.append(slantics.pop(slantics.index(slantic)))
+                slantics[coords] = slantics.pop(coords)
 
-                slantic.enable_drag = True
+                slantics[coords].enable_drag = True
 
     if event.type == pygame.MOUSEBUTTONUP:
-        for slantic in slantics:
+        for slantic in slantics.values():
             if(slantic.enable_drag):
                 slantic.enable_drag = False
                 drop(slantic, slantics, group)
@@ -333,7 +332,7 @@ def draw_grid(screen):
 def refresh(screen, slantics):
     screen.fill(WHITE)
     draw_grid(screen)
-    for slantic in slantics:
+    for slantic in slantics.values():
         slantic.drawSlantic()
     pygame.display.update()
 
@@ -363,7 +362,7 @@ def main():
             refresh(screen, slantics)
             initial_draw = not initial_draw
 
-        for slantic in slantics:
+        for slantic in slantics.values():
             if slantic.enable_drag:
                 drag(slantic, group)
                 refresh(screen, slantics)
