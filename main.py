@@ -298,8 +298,10 @@ def handle_mouse_down(slantics):
     ):
         # Move the clicked slantic to the top
         slantics[(x, y)] = slantics.pop((x, y))
-
         slantics[(x, y)].enable_drag = True
+
+        # Return the slantic that has been clicked on
+        return slantics[(x, y)]
 
 
 def handle_mouse_up(screen, slantics, group, dragging):
@@ -359,14 +361,6 @@ def main():
 
         for slantic in slantics.values():
             if slantic.enable_drag:
-                if slantic.rect.collidepoint(pygame.mouse.get_pos()):
-
-                    # store the slantic we are currently dragging
-                    # This will be passed to the mouse handler so we don't
-                    # have to loop over all slantics to find the one currently
-                    # being dragged.
-                    dragging = slantic
-
                 drag(slantic, group)
                 refresh(screen, slantics)
 
@@ -374,7 +368,7 @@ def main():
             handle_keys(event, screen, slantics, group)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                handle_mouse_down(slantics)
+                dragging = handle_mouse_down(slantics)
 
             elif event.type == pygame.MOUSEBUTTONUP and dragging:
                 handle_mouse_up(screen, slantics, group, dragging)
