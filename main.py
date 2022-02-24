@@ -260,8 +260,16 @@ def drop(slantic, group, slantics):
     # Removing the slantic from the original position
     slantics.pop((og_x, og_y))
 
+    # Snap the slantic to the grid
     mult_x = math.floor(mouse_x/BLOCK_SIZE)
     mult_y = math.floor(mouse_y/BLOCK_SIZE)
+
+    # Swap slantics if space is currently taken
+    if slantics.get((x, y), None):
+        slantics[(x, y)].x = slantics[(x, y)].og_x = slantic.og_x
+        slantics[(x, y)].y = slantics[(x, y)].og_y = slantic.og_y
+        slantics[og_x, og_y] = slantics[(x, y)]
+
     slantic.x = slantic.og_x = mult_x * BLOCK_SIZE + MARGIN
     slantic.y = slantic.og_y = mult_y * BLOCK_SIZE + MARGIN
 
@@ -381,4 +389,5 @@ def main():
         clock.tick(fps)
 
 
-main()
+if __name__ == "__main__":
+    main()
