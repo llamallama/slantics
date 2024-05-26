@@ -21,11 +21,11 @@ class Board():
     -------
     set(pos, val):
         Adds a value to the board and the specified position
-    get(pos)
+    get(pos):
         Gets a value from the board at the specified position
-    draw_grid()
+    draw_grid():
         Draws the grid onto the screen
-    snap()
+    snap():
         Snaps tiles into place after dragging
     '''
     def __init__(self, screen, block_size):
@@ -74,7 +74,7 @@ class Board():
 
         Returns
         -------
-        val
+        val:
             The value from the specified position
         '''
         return self.board[pos[0]][pos[1]]
