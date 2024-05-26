@@ -5,27 +5,28 @@ from board import Board
 from sys import exit
 
 pygame.init()
-screen = pygame.display.set_mode((1000, 750))
+
+# Figure out how many blocks can fit on the screen
+# Round down the rows and cols and take 2 off for good measure
+screen_width = pygame.display.Info().current_w
+screen_height = pygame.display.Info().current_h
+block_size = 50
+rows = int(screen_width/block_size) - 2
+cols = int(screen_height/block_size) - 2
+
+screen = pygame.display.set_mode(
+    ((block_size * rows),
+     (block_size * cols))
+)
+
+board = Board(screen, block_size)
+
 pygame.display.set_caption("Slantics")
 clock = pygame.time.Clock()
 
-board = Board(20, 15)
-
-# def draw_grid():
-#     block_size = 50
-#     for x in range(20):
-#         for y in range(15):
-#             rect = pygame.Rect(
-#                 x * block_size, y * block_size, block_size, block_size
-#             )
-#             pygame.draw.rect(screen, 'black', rect, 1)
-
-
 tile_group = pygame.sprite.Group()
 tile_group.add(
-    Tile(),
-    Tile((0, 100)),
-    Tile((0, 200)),
+    Tile()
 )
 
 while True:
@@ -34,13 +35,22 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            for sprite in tile_group.sprites():
+                if sprite.rect.collidepoint(pygame.mouse.get_pos()):
+                    board.set(pygame.mouse.get_pos(), 0)
         if event.type == pygame.MOUSEBUTTONUP:
-            for tile in tile_group.sprites():
-                print(tile.rect.collidepoint(pygame.mouse.get_pos()))
+            for sprite in tile_group.sprites():
+                if sprite.rect.collidepoint(pygame.mouse.get_pos()):
+                    board.set(pygame.mouse.get_pos(), sprite)
+                    board.snap()
+            for row in board.board:
+                print(row)
+
 
     screen.fill('white')
-    # draw_grid()
     tile_group.update(events)
     tile_group.draw(screen)
+    board.update(events)
     pygame.display.update()
     clock.tick(60)
