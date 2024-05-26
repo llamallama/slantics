@@ -29,28 +29,29 @@ tile_group.add(
     Tile()
 )
 
-while True:
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            for sprite in tile_group.sprites():
-                if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-                    board.set(pygame.mouse.get_pos(), 0)
-        if event.type == pygame.MOUSEBUTTONUP:
-            for sprite in tile_group.sprites():
-                if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-                    board.set(pygame.mouse.get_pos(), sprite)
-                    board.snap()
-            for row in board.board:
-                print(row)
+if __name__ == '__main__':
+    while True:
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for sprite in tile_group.sprites():
+                    if sprite.rect.collidepoint(pygame.mouse.get_pos()):
+                        board.set(pygame.mouse.get_pos(), 0)
+            if event.type == pygame.MOUSEBUTTONUP:
+                for sprite in tile_group.sprites():
+                    if sprite.rect.collidepoint(pygame.mouse.get_pos()):
+                        board.set(pygame.mouse.get_pos(), sprite)
+                        board.snap()
+                for row in board.board:
+                    print(row)
 
 
-    screen.fill('white')
-    tile_group.update(events)
-    tile_group.draw(screen)
-    board.update(events)
-    pygame.display.update()
-    clock.tick(60)
+        screen.fill('white')
+        tile_group.update(events)
+        tile_group.draw(screen)
+        board.update()
+        pygame.display.update()
+        clock.tick(60)
