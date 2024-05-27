@@ -19,10 +19,6 @@ class Board():
 
     Methods
     -------
-    set(pos, val):
-        Adds a value to the board and the specified position
-    get(pos):
-        Gets a value from the board at the specified position
     draw_grid():
         Draws the grid onto the screen
     snap():
@@ -48,36 +44,6 @@ class Board():
         self.board = [[0 for _ in range(self.rows)] for _ in range(self.cols)]
         self.screen = screen
 
-    def set(self, pos, val):
-        '''
-        Adds a value to the board and the specified position
-
-        Parameters
-        ----------
-        pos : tuple
-            The position to add the value to
-        val : pygame.Sprite
-            The value to store in the board
-        '''
-        row = int(pos[0]/self.block_size)
-        col = int(pos[1]/self.block_size)
-        self.board[col][row] = val
-
-    def get(self, pos):
-        '''
-        Gets a value from the board at the specified position
-
-        Parameters
-        ----------
-        pos : tuple
-            The position to get the value from
-
-        Returns
-        -------
-        val:
-            The value from the specified position
-        '''
-        return self.board[pos[0]][pos[1]]
 
     def draw_grid(self):
         '''
@@ -101,9 +67,9 @@ class Board():
                 )
                 pygame.draw.rect(self.screen, 'black', rect, 1)
 
-    def snap(self):
+    def sync(self):
         '''
-        Snaps tiles into place after dragging
+        Updates tile positions as they are represented in the board array.
 
         Parameters
         ---------
@@ -113,12 +79,15 @@ class Board():
         -------
         None
         '''
-        for rows in self.board:
-            for cell in rows:
-                if cell:
-                    mouse_pos = pygame.mouse.get_pos()
-                    cell.rect.x = int(mouse_pos[0]/self.block_size) * self.block_size
-                    cell.rect.y = int(mouse_pos[1]/self.block_size) * self.block_size
+
+        for row in range(0, len(self.board)):
+            for col in range(0, len(self.board[row])):
+                if self.board[row][col]:
+                    cell_y = row * self.block_size
+                    cell_x = col * self.block_size
+                    self.board[row][col].rect.x = cell_x
+                    self.board[row][col].rect.y = cell_y
+
 
     def update(self):
         '''
@@ -132,5 +101,5 @@ class Board():
         -------
         None
         '''
-        self.draw_grid()
-        # self.snap()
+        # self.draw_grid()
+        self.sync()
