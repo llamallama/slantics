@@ -101,5 +101,5 @@ class Board():
         -------
         None
         '''
-        # self.draw_grid()
+        self.draw_grid()
         self.sync()

@@ -74,16 +74,15 @@ if __name__ == '__main__':
         # Draw the background color
         screen.fill('white')
 
+        # Update and draw the board
+        board.update()
+
         # Update and draw tiles
         tile_group.update(events)
         tile_group.draw(screen)
-
-        # # Update and draw the board
-        board.update()
 
         # # Update the display
         pygame.display.update()
 
         # Lock at 60 FPS
         clock.tick(60)
-        print(clock.get_fps())
