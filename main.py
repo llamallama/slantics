@@ -11,8 +11,8 @@ pygame.init()
 screen_width = pygame.display.Info().current_w
 screen_height = pygame.display.Info().current_h
 block_size = 50
-rows = int(screen_width/block_size) - 5
-cols = int(screen_height/block_size) - 5
+rows = int(screen_width/block_size) - 2
+cols = int(screen_height/block_size) - 2
 
 # Initial pygame setup
 pygame.display.set_caption("Slantics")
