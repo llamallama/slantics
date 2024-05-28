@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import pygame
-from tile import Tile
+from slantic import Slantic
 from board import Board
 from sys import exit
 
@@ -10,7 +10,7 @@ pygame.init()
 # Round down the rows and cols and take 2 off for good measure
 screen_width = pygame.display.Info().current_w
 screen_height = pygame.display.Info().current_h
-block_size = 50
+block_size = 75
 rows = int(screen_width/block_size) - 2
 cols = int(screen_height/block_size) - 2
 
@@ -22,42 +22,21 @@ screen = pygame.display.set_mode(
 )
 clock = pygame.time.Clock()
 
-tile_types = [
-    ("bar-dark-l", "bar-lite-l"),
-    ("bar-dark-r", "bar-lite-r"),
-    ("beam-dark-l", "beam-lite-l"),
-    ("beam-dark-r", "beam-lite-r"),
-    ("bit-dark", "bit-lite"),
-    ("bonus-dark", "bonus-lite"),
-    ("corner-dark-l", "corner-lite-l"),
-    ("corner-dark-r", "corner-lite-r"),
-    ("crux-dark", "crux-lite"),
-    ("fang-dark-l", "fang-lite-l"),
-    ("fang-dark-r", "fang-lite-r"),
-    ("hex-dark", "hex-lite"),
-    ("hill-dark", "hill-lite"),
-    ("peak-dark", "peak-lite"),
-    ("point-dark", "point-lite"),
-    ("slope-dark-l", "slope-lite-l"),
-    ("slope-dark-r", "slope-lite-r"),
-    ("spike-dark-l", "spike-lite-l"),
-    ("spike-dark-r", "spike-lite-r"),
-    ("strip-dark", "strip-lite"),
-    ("slant-dark", "slant-lite")
-]
-
-
 # Set up the board
 tile_group = pygame.sprite.Group()
 board = Board(screen, block_size)
-for i in range(0, 10):
-    tile_group.add(
-        Tile(front_tile=f'tiles/{tile_types[i][0]}.png',
-             back_tile=f'tiles/{tile_types[i][1]}.png')
-    )
-    board.board[0][i] = tile_group.sprites()[i]
+for i in range(0, len(board.board)):
+    for j in range(0, len(board.board[i])):
+        print(f"{i} : {j}")
+        # if (i == 0 or i == len(board.board) - 1
+        #         or
+        #         (i != 0 and (j == 0 or j == len(board.board[i]) - 1))):
+        tile_group.add(
+            Slantic(size=block_size)
+        )
+        board.board[i][j] = tile_group.sprites()[-1]
 
-board_backup = []
+# board_backup = []
 
 if __name__ == '__main__':
     while True:
