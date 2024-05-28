@@ -22,19 +22,41 @@ screen = pygame.display.set_mode(
 )
 clock = pygame.time.Clock()
 
-# Add some tile sprites
-tile_group = pygame.sprite.Group()
-tile_group.add(
-    Tile(),
-    Tile(),
-    Tile()
-)
+tile_types = [
+    ("bar-dark-l", "bar-lite-l"),
+    ("bar-dark-r", "bar-lite-r"),
+    ("beam-dark-l", "beam-lite-l"),
+    ("beam-dark-r", "beam-lite-r"),
+    ("bit-dark", "bit-lite"),
+    ("bonus-dark", "bonus-lite"),
+    ("corner-dark-l", "corner-lite-l"),
+    ("corner-dark-r", "corner-lite-r"),
+    ("crux-dark", "crux-lite"),
+    ("fang-dark-l", "fang-lite-l"),
+    ("fang-dark-r", "fang-lite-r"),
+    ("hex-dark", "hex-lite"),
+    ("hill-dark", "hill-lite"),
+    ("peak-dark", "peak-lite"),
+    ("point-dark", "point-lite"),
+    ("slope-dark-l", "slope-lite-l"),
+    ("slope-dark-r", "slope-lite-r"),
+    ("spike-dark-l", "spike-lite-l"),
+    ("spike-dark-r", "spike-lite-r"),
+    ("strip-dark", "strip-lite"),
+    ("slant-dark", "slant-lite")
+]
+
 
 # Set up the board
+tile_group = pygame.sprite.Group()
 board = Board(screen, block_size)
-board.board[0][0] = tile_group.sprites()[0]
-board.board[1][1] = tile_group.sprites()[1]
-board.board[2][2] = tile_group.sprites()[2]
+for i in range(0, 10):
+    tile_group.add(
+        Tile(front_tile=f'tiles/{tile_types[i][0]}.png',
+             back_tile=f'tiles/{tile_types[i][1]}.png')
+    )
+    board.board[0][i] = tile_group.sprites()[i]
+
 board_backup = []
 
 if __name__ == '__main__':

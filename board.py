@@ -65,7 +65,7 @@ class Board():
                     self.block_size,
                     self.block_size
                 )
-                pygame.draw.rect(self.screen, 'black', rect, 1)
+                pygame.draw.rect(self.screen, 'gray80', rect, 1)
 
     def sync(self):
         '''
