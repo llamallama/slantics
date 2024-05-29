@@ -29,15 +29,15 @@ class Tile(pygame.sprite.Sprite):
         Override for the sprite update class. Runs all of the above functions.
 
     '''
-    def __init__(self, front_tile, back_tile, pos=(0, 0), size=50):
+    def __init__(self, front_tile=None, back_tile=None, pos=(0, 0), size=50):
         '''
         Performs the initial tile setup.
 
         Parameters
         ----------
-        front_tile : str
+        front_tile : pygame.Surface, optional
             The path to the front tile
-        back_tile : str
+        back_tile : pygame.Surface, optional
             The path to the back tile
         pos : tuple, optional
             The position to create the tile at. Default is (0,0)
@@ -58,9 +58,12 @@ class Tile(pygame.sprite.Sprite):
         '''
         super().__init__()
         # Set the tiles images
-        front_tile = pygame.image.load(front_tile).convert_alpha()
-        back_tile = pygame.image.load(back_tile).convert_alpha()
-
+        if not front_tile:
+            front_tile = pygame.Surface((size, size))
+            front_tile.fill('blue')
+        if not back_tile:
+            back_tile = pygame.Surface((size, size))
+            back_tile.fill('black')
         # Scale the tiles to size
         front_tile = pygame.transform.smoothscale(front_tile, (size, size))
         back_tile  = pygame.transform.smoothscale(back_tile, (size, size))
