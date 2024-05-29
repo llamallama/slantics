@@ -4,38 +4,14 @@ import random
 
 class Slantic(Tile):
     def __init__(self, pos=(0, 0), size=50):
-        # tile_types = [
-        #     ("bar-dark-l", "bar-lite-l"),
-        #     ("bar-dark-r", "bar-lite-r"),
-        #     ("beam-dark-l", "beam-lite-l"),
-        #     ("beam-dark-r", "beam-lite-r"),
-        #     ("bit-dark", "bit-lite"),
-        #     ("bonus-dark", "bonus-lite"),
-        #     ("corner-dark-l", "corner-lite-l"),
-        #     ("corner-dark-r", "corner-lite-r"),
-        #     ("crux-dark", "crux-lite"),
-        #     ("fang-dark-l", "fang-lite-l"),
-        #     ("fang-dark-r", "fang-lite-r"),
-        #     ("hex-dark", "hex-lite"),
-        #     ("hill-dark", "hill-lite"),
-        #     ("peak-dark", "peak-lite"),
-        #     ("point-dark", "point-lite"),
-        #     ("slope-dark-l", "slope-lite-l"),
-        #     ("slope-dark-r", "slope-lite-r"),
-        #     ("spike-dark-l", "spike-lite-l"),
-        #     ("spike-dark-r", "spike-lite-r"),
-        #     ("strip-dark", "strip-lite"),
-        #     ("slant-dark", "slant-lite")
-        # ]
-
         # Setting up colors
         fg_color = 'dark blue'
         bg_color = 'light blue'
         # Setting up coords for drawing polygons
-        top_left=(0, 0)
-        top_middle=(size/2, 0)
-        top_right=(size, 0)
-        middle_left=(0, size/2)
+        top_left = (0, 0)
+        top_middle = (size/2, 0)
+        top_right = (size, 0)
+        middle_left = (0, size/2)
         middle = (size/2, size/2)
         middle_right = (size, size/2)
         bottom_left = (0, size)
@@ -45,8 +21,21 @@ class Slantic(Tile):
         # Set up the shapes using the above coords
         # The tuples describes the order in which to drag the polygons
         shapes = {
-            "bar": (middle_left, top_right, middle_right, bottom_left),
-            "beam": (middle_left, top_middle, top_right, middle_right, bottom_left)
+            'bar': (middle_left, top_right, middle_right, bottom_left),
+            'beam': (middle_left, top_middle, top_right, middle_right, bottom_left),
+            'bit': (middle_left, bottom_middle, bottom_left),
+            'bonus': (top_left, top_right, bottom_right, bottom_left),
+            'corner': (top_middle, middle_right, bottom_right, bottom_left),
+            'crux': (middle, bottom_right, bottom_left),
+            'fang': (middle_right, bottom_middle, bottom_left),
+            'hex': (top_middle, top_right, middle_right, bottom_middle, bottom_left, middle_left),
+            'hill': (top_middle, middle_right, bottom_right, bottom_left, middle_left),
+            'peak': (top_middle, bottom_right, bottom_left),
+            'point': (top_left, middle_right, bottom_right, bottom_middle),
+            'slant': (top_left, top_right, bottom_left),
+            'slope': (middle_left, bottom_right, bottom_left),
+            'spike': (top_right, bottom_left, middle_left),
+            'strip': (top_middle, top_right, bottom_left, middle_left)
         }
 
         # Choose a shape at random

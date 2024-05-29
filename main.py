@@ -10,7 +10,7 @@ pygame.init()
 # Round down the rows and cols and take 2 off for good measure
 screen_width = pygame.display.Info().current_w
 screen_height = pygame.display.Info().current_h
-block_size = 50
+block_size = 100
 rows = int(screen_width/block_size) - 2
 cols = int(screen_height/block_size) - 2
 
