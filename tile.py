@@ -25,6 +25,8 @@ class Tile(pygame.sprite.Sprite):
         Rotates the tile
     flip(events):
         Flips the tile
+    add_to_group(events):
+        Groups the tile
     update(events):
         Override for the sprite update class. Runs all of the above functions.
 
@@ -72,6 +74,7 @@ class Tile(pygame.sprite.Sprite):
         self.image = self.tiles[0]
         self.rect = self.image.get_rect(topleft=pos)
         self.dragging = False
+        self.group = False
 
         # To track rotation value to reapply on flip
         self.rotation = 0
@@ -88,6 +91,8 @@ class Tile(pygame.sprite.Sprite):
         '''
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+                self.dragging = True
+            if event.type == pygame.MOUSEBUTTONDOWN and self.group:
                 self.dragging = True
             if event.type == pygame.MOUSEBUTTONUP:
                 self.dragging = False
@@ -126,6 +131,20 @@ class Tile(pygame.sprite.Sprite):
                 # Reapply previous rotation
                 self.image = pygame.transform.rotate(self.image, self.rotation)
 
+
+    def add_to_group(self, events):
+        '''
+        Groups the tile. It does this by switching the value of self.group.
+
+        Parameters
+        ----------
+        events : list
+            The pygame.events list passed in as a parameter
+        '''
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_g and self.rect.collidepoint(pygame.mouse.get_pos()):
+                self.group = not self.group
+
     def update(self, events):
         '''
         Override for the sprite update class. Runs all of the above functions.
@@ -138,4 +157,5 @@ class Tile(pygame.sprite.Sprite):
         self.drag(events)
         self.rotate(events)
         self.flip(events)
+        self.add_to_group(events)
 

@@ -10,7 +10,7 @@ pygame.init()
 # Round down the rows and cols and take 2 off for good measure
 screen_width = pygame.display.Info().current_w
 screen_height = pygame.display.Info().current_h
-block_size = 100
+block_size = 50
 rows = int(screen_width/block_size) - 2
 cols = int(screen_height/block_size) - 2
 
@@ -35,7 +35,8 @@ for i in range(0, len(board.board)):
             )
             board.board[i][j] = tile_group.sprites()[-1]
 
-# board_backup = []
+board.sync()
+
 
 if __name__ == '__main__':
     while True:
@@ -52,9 +53,8 @@ if __name__ == '__main__':
                 # Calculate and update the new board position
                 for sprite in tile_group.sprites():
                     if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-                        mouse = pygame.mouse.get_pos()
-                        row = int(mouse[1] / block_size)
-                        col = int(mouse[0] / block_size)
+                        row = int(sprite.rect.y / block_size)
+                        col = int(sprite.rect.x / block_size)
                         board.board[row][col] = 0
 
             if event.type == pygame.MOUSEBUTTONUP:
@@ -62,14 +62,17 @@ if __name__ == '__main__':
                 # If so, revert from backup
                 # Otherwise update board with new value
                 for sprite in tile_group.sprites():
-                    if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-                        mouse = pygame.mouse.get_pos()
-                        row = int(mouse[1] / block_size)
-                        col = int(mouse[0] / block_size)
-                        if board.board[row][col]:
-                            board.board = [row.copy() for row in board_backup]
-                        else:
-                            board.board[row][col] = sprite
+                    # if sprite.dragging:
+                    row = int(sprite.rect.y / block_size)
+                    col = int(sprite.rect.x / block_size)
+                    if board.board[row][col]:
+                        board.board = [row.copy() for row in board_backup]
+                    else:
+                        board.board[row][col] = sprite
+                for row in board.board:
+                    status = [int(cell != 0) for cell in row]
+                    print(status)
+                print('--------------------------------------------')
 
         # Draw the background color
         screen.fill('white')
