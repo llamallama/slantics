@@ -87,10 +87,13 @@ if __name__ == '__main__':
                 exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                # Save the mouse position in case we need to draw a selection square
+                mouse_click_pos = event.pos
+
+                # Figure out which grid cell we are clicking on to test if
+                # If not clicking on anything, stop all dragging and grouping
                 row = int(event.pos[1] / block_size)
                 col = int(event.pos[0] / block_size)
-
-                # If not clicking on anything, stop all dragging and grouping
                 if not board.board[row][col]:
                     deselect_all()
 
@@ -100,6 +103,10 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONUP:
                 update_positions(board_backup)
                 board.debug()
+
+            if event.type == pygame.MOUSEMOTION:
+                if 1 in event.buttons:
+                    print(mouse_click_pos)
 
         # Draw the background color
         screen.fill('white')
