@@ -3,16 +3,15 @@ import pygame
 from slantic import Slantic
 from board import Board
 from sys import exit
+# import pudb; pu.db
 
 pygame.init()
 
 # Figure out how many blocks can fit on the screen
 # Round down the rows and cols and take 2 off for good measure
-screen_width = pygame.display.Info().current_w
-screen_height = pygame.display.Info().current_h
 block_size = 50
-rows = int(screen_width/block_size) - 2
-cols = int(screen_height/block_size) - 2
+rows = int(pygame.display.Info().current_w/block_size) - 10
+cols = int(pygame.display.Info().current_h/block_size) - 2
 
 # Initial pygame setup
 pygame.display.set_caption("Slantics")
@@ -38,6 +37,47 @@ for i in range(0, len(board.board)):
 board.sync()
 
 
+def is_out_of_bounds(sprite):
+    if sprite.rect.centerx < 0 or sprite.rect.centerx > pygame.display.Info().current_w:
+        return True
+    if sprite.rect.centery < 0 or sprite.rect.centery > pygame.display.Info().current_h:
+        return True
+    return False
+
+
+def clear_positions(event):
+    # clears out the board cells for slantics being dragged somewhere else
+    board_backup = [row.copy() for row in board.board]
+    for sprite in tile_group.sprites():
+        if sprite.rect.collidepoint(event.pos) or sprite.group:
+            row = int(sprite.rect.y / block_size)
+            col = int(sprite.rect.x / block_size)
+            board.board[row][col] = 0
+    return board_backup
+
+
+def update_positions(board_backup):
+    # Check is a space is occupied.
+    # If so, revert from backup
+    # Otherwise update board with new value
+    for sprite in tile_group.sprites():
+        if sprite.dragging:
+            row = int(sprite.rect.centery / block_size)
+            col = int(sprite.rect.centerx / block_size)
+
+            if board.board[row][col] or is_out_of_bounds(sprite):
+                board.board = [row.copy() for row in board_backup]
+                break
+            else:
+                board.board[row][col] = sprite
+
+
+def deselect_all():
+    for sprite in tile_group.sprites():
+        sprite.dragging = False
+        sprite.group = False
+
+
 if __name__ == '__main__':
     while True:
         events = pygame.event.get()
@@ -47,32 +87,19 @@ if __name__ == '__main__':
                 exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # Backup the board
-                board_backup = [row.copy() for row in board.board]
+                row = int(event.pos[1] / block_size)
+                col = int(event.pos[0] / block_size)
 
-                # Calculate and update the new board position
-                for sprite in tile_group.sprites():
-                    if sprite.rect.collidepoint(pygame.mouse.get_pos()):
-                        row = int(sprite.rect.y / block_size)
-                        col = int(sprite.rect.x / block_size)
-                        board.board[row][col] = 0
+                # If not clicking on anything, stop all dragging and grouping
+                if not board.board[row][col]:
+                    deselect_all()
+
+                # Backup the board and clear positions of sprites being dragged
+                board_backup = clear_positions(event)
 
             if event.type == pygame.MOUSEBUTTONUP:
-                # Check is a space is occupied.
-                # If so, revert from backup
-                # Otherwise update board with new value
-                for sprite in tile_group.sprites():
-                    # if sprite.dragging:
-                    row = int(sprite.rect.y / block_size)
-                    col = int(sprite.rect.x / block_size)
-                    if board.board[row][col]:
-                        board.board = [row.copy() for row in board_backup]
-                    else:
-                        board.board[row][col] = sprite
-                for row in board.board:
-                    status = [int(cell != 0) for cell in row]
-                    print(status)
-                print('--------------------------------------------')
+                update_positions(board_backup)
+                board.debug()
 
         # Draw the background color
         screen.fill('white')

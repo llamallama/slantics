@@ -91,6 +91,11 @@ class Board():
                         self.board[row][col].rect.x = cell_x
                         self.board[row][col].rect.y = cell_y
 
+    def debug(self):
+        for row in self.board:
+            status = [int(cell != 0) for cell in row]
+            print(status)
+        print('--------------------------------------------')
 
     def update(self):
         '''
