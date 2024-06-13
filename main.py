@@ -2,6 +2,7 @@
 import pygame
 from slantic import Slantic
 from board import Board
+from selectbox import SelectBox
 from sys import exit
 # import pudb; pu.db
 
@@ -35,6 +36,9 @@ for i in range(0, len(board.board)):
             board.board[i][j] = tile_group.sprites()[-1]
 
 board.sync()
+
+# Add the selectbox sprite
+selectbox_group = pygame.sprite.GroupSingle(SelectBox())
 
 
 def is_out_of_bounds(sprite):
@@ -87,7 +91,8 @@ if __name__ == '__main__':
                 exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # Save the mouse position in case we need to draw a selection square
+                # Save the mouse position in case we
+                # need to draw a selection square
                 mouse_click_pos = event.pos
 
                 # Figure out which grid cell we are clicking on to test if
@@ -106,7 +111,7 @@ if __name__ == '__main__':
 
             if event.type == pygame.MOUSEMOTION:
                 if 1 in event.buttons:
-                    print(mouse_click_pos)
+                    selectbox_group.sprite.resize(event, mouse_click_pos)
 
         # Draw the background color
         screen.fill('white')
@@ -117,6 +122,9 @@ if __name__ == '__main__':
         # Update and draw tiles
         tile_group.update(events)
         tile_group.draw(screen)
+
+        # Draw the group selectbox
+        #selectbox_group.draw(screen)
 
         # # Update the display
         pygame.display.update()
