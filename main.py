@@ -107,6 +107,9 @@ if __name__ == '__main__':
 
             if event.type == pygame.MOUSEBUTTONUP:
                 update_positions(board_backup)
+
+                # clear the select box
+                selectbox_group.sprite.get_selected_sprites(tile_group)
                 board.debug()
 
             if event.type == pygame.MOUSEMOTION:
@@ -124,7 +127,7 @@ if __name__ == '__main__':
         tile_group.draw(screen)
 
         # Draw the group selectbox
-        #selectbox_group.draw(screen)
+        selectbox_group.draw(screen)
 
         # # Update the display
         pygame.display.update()
