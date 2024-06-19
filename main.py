@@ -38,7 +38,7 @@ for i in range(0, len(board.board)):
 board.sync()
 
 # Add the selectbox sprite
-selectbox_group = pygame.sprite.GroupSingle(SelectBox())
+selectbox_group = pygame.sprite.GroupSingle()
 
 
 def is_out_of_bounds(sprite):
@@ -100,6 +100,7 @@ if __name__ == '__main__':
                 row = int(event.pos[1] / block_size)
                 col = int(event.pos[0] / block_size)
                 if not board.board[row][col]:
+                    selectbox_group.sprite = SelectBox(event.pos)
                     deselect_all()
 
                 # Backup the board and clear positions of sprites being dragged
@@ -109,12 +110,12 @@ if __name__ == '__main__':
                 update_positions(board_backup)
 
                 # clear the select box
-                selectbox_group.sprite.get_selected_sprites(tile_group)
+                selectbox_group.empty()
                 board.debug()
 
             if event.type == pygame.MOUSEMOTION:
-                if 1 in event.buttons:
-                    selectbox_group.sprite.resize(event, mouse_click_pos)
+                if selectbox_group.sprite:
+                    selectbox_group.sprite.resize(event)
 
         # Draw the background color
         screen.fill('white')
