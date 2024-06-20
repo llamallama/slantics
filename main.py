@@ -61,18 +61,18 @@ def clear_positions(event):
 
 
 def update_positions(board_backup):
-    # Check is a space is occupied.
-    # If so, revert from backup
-    # Otherwise update board with new value
     for sprite in tile_group.sprites():
         if sprite.dragging:
             row = int(sprite.rect.centery / block_size)
             col = int(sprite.rect.centerx / block_size)
 
-            if board.board[row][col] or is_out_of_bounds(sprite):
+            # Check is a space is occupied or out of bounds
+            # If so, revert from backup
+            if is_out_of_bounds(sprite) or board.board[row][col]:
                 board.board = [row.copy() for row in board_backup]
                 break
             else:
+                # Otherwise update board with new value
                 board.board[row][col] = sprite
 
 
@@ -95,12 +95,19 @@ if __name__ == '__main__':
                 # need to draw a selection square
                 mouse_click_pos = event.pos
 
-                # Figure out which grid cell we are clicking on to test if
-                # If not clicking on anything, stop all dragging and grouping
+                # Figure out which grid cell we are clicking.
                 row = int(event.pos[1] / block_size)
                 col = int(event.pos[0] / block_size)
+
+                # If not clicking on anything, stop all dragging and grouping
+                # Then start drawing the group select box
                 if not board.board[row][col]:
                     selectbox_group.sprite = SelectBox(event.pos)
+                    deselect_all()
+
+                # If we are clicking something not part of a group
+                # Deselect all the others so only this tile drags
+                if board.board[row][col] and not board.board[row][col].group:
                     deselect_all()
 
                 # Backup the board and clear positions of sprites being dragged
