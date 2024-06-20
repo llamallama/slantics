@@ -25,5 +25,7 @@ class SelectBox(pygame.sprite.Sprite):
             self.rect.y = event.pos[1]
             height = self.pos[1] - event.pos[1]
 
+        self.rect.w = width
+        self.rect.h = height
         self.image = pygame.Surface((width, height))
         self.image.fill('grey')

@@ -109,8 +109,13 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONUP:
                 update_positions(board_backup)
 
-                # clear the select box
-                selectbox_group.empty()
+                # There won't be a selectbox sprite when dragging a tile
+                if selectbox_group.sprite:
+                    for sprite in pygame.sprite.spritecollide(selectbox_group.sprite, tile_group, False):
+                        sprite.group = True
+
+                    # clear the select box
+                    selectbox_group.empty()
                 board.debug()
 
             if event.type == pygame.MOUSEMOTION:
