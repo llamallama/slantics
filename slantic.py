@@ -4,10 +4,34 @@ import random
 
 
 class Slantic(Tile):
+    '''
+    The main slantics class. Inherits from Tile.
+    It sets up four images drawn using the pygame.draw.polygon method.
+    The definition of the polygons are defined by the "shapes" variable.
+    Four shapes are drawn.
+        * front_tile
+        * back_tile
+        * select_front_tile
+        * select_back_tile
+
+    It then makes a random choice on whether the tile should be flipped
+    horizontally.
+
+    These images are then passed to the main Tile class.
+
+    Attributes
+    ----------
+    pos : tuple, optional
+        The position to create the tile at. Default is (0,0)
+    size : int, optional
+        The size to scale the tile down or up to.
+    '''
     def __init__(self, pos=(0, 0), size=50):
         # Setting up colors
         fg_color = 'dark blue'
         bg_color = 'light blue'
+        select_fg_color = 'dark green'
+        select_bg_color = 'light green'
 
         # Setting up coords for drawing polygons
         top_left = (0, 0)
@@ -83,12 +107,26 @@ class Slantic(Tile):
         back_tile.fill(fg_color)
         pygame.draw.polygon(back_tile, bg_color, shapes[shape_key]["poly"])
 
+        # Draw the front select tile
+        select_front_tile = pygame.Surface((size, size))
+        select_front_tile.fill(select_bg_color)
+        pygame.draw.polygon(select_front_tile, select_fg_color, shapes[shape_key]["poly"])
+
+        # Draw the back select tile
+        select_back_tile = pygame.Surface((size, size))
+        select_back_tile.fill(select_fg_color)
+        pygame.draw.polygon(select_back_tile, select_bg_color, shapes[shape_key]["poly"])
+
         # Randomly choose to flip the slantic
         if random.choice([True, False]):
             front_tile = pygame.transform.flip(front_tile, True, False)
             back_tile = pygame.transform.flip(back_tile, True, False)
+            select_front_tile = pygame.transform.flip(select_front_tile, True, False)
+            select_back_tile = pygame.transform.flip(select_back_tile, True, False)
 
         super().__init__(front_tile=front_tile,
                          back_tile=back_tile,
+                         select_front_tile=select_front_tile,
+                         select_back_tile=select_back_tile,
                          pos=pos,
                          size=size)

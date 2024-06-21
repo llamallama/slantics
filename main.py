@@ -53,7 +53,7 @@ def clear_positions(event):
     # clears out the board cells for slantics being dragged somewhere else
     board_backup = [row.copy() for row in board.board]
     for sprite in tile_group.sprites():
-        if sprite.rect.collidepoint(event.pos) or sprite.group:
+        if sprite.rect.collidepoint(event.pos) or sprite.selected:
             row = int(sprite.rect.y / block_size)
             col = int(sprite.rect.x / block_size)
             board.board[row][col] = 0
@@ -79,7 +79,7 @@ def update_positions(board_backup):
 def deselect_all():
     for sprite in tile_group.sprites():
         sprite.dragging = False
-        sprite.group = False
+        sprite.select(False)
 
 
 if __name__ == '__main__':
@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
                 # If we are clicking something not part of a group
                 # Deselect all the others so only this tile drags
-                if board.board[row][col] and not board.board[row][col].group:
+                if board.board[row][col] and not board.board[row][col].selected:
                     deselect_all()
 
                 # Backup the board and clear positions of sprites being dragged
@@ -116,14 +116,12 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONUP:
                 update_positions(board_backup)
 
-                # There won't be a selectbox sprite when dragging a tile
                 if selectbox_group.sprite:
                     for sprite in pygame.sprite.spritecollide(selectbox_group.sprite, tile_group, False):
-                        sprite.group = True
+                        sprite.select(True)
 
                     # clear the select box
                     selectbox_group.empty()
-                board.debug()
 
             if event.type == pygame.MOUSEMOTION:
                 if selectbox_group.sprite:
@@ -135,12 +133,12 @@ if __name__ == '__main__':
         # Update and draw the board
         board.update()
 
+        # Draw the group selectbox
+        selectbox_group.draw(screen)
+
         # Update and draw tiles
         tile_group.update(events)
         tile_group.draw(screen)
-
-        # Draw the group selectbox
-        selectbox_group.draw(screen)
 
         # # Update the display
         pygame.display.update()
