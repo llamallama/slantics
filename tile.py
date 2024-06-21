@@ -16,6 +16,8 @@ class Tile(pygame.sprite.Sprite):
         The board's data represents as a two dimension array
     dragging : bool
         Tracks if the tile is being dragged
+    selected : bool
+        If the tile is member of a group selection
 
     Methods
     -------
@@ -25,13 +27,21 @@ class Tile(pygame.sprite.Sprite):
         Rotates the tile
     flip(events):
         Flips the tile
-    add_to_group(events):
-        Groups the tile
     update(events):
         Override for the sprite update class. Runs all of the above functions.
-
+    select(selected):
+        Selects the tile for group dragging. Switches tiles to reflect
+        its selection state.
     '''
-    def __init__(self, front_tile=None, back_tile=None, pos=(0, 0), size=50):
+    def __init__(
+            self,
+            front_tile=None,
+            back_tile=None,
+            select_front_tile=None,
+            select_back_tile=None,
+            pos=(0, 0),
+            size=50
+    ):
         '''
         Performs the initial tile setup.
 
@@ -41,6 +51,10 @@ class Tile(pygame.sprite.Sprite):
             The path to the front tile
         back_tile : pygame.Surface, optional
             The path to the back tile
+        select_front_tile : pygame.Surface, optional
+            The path to the front tile when selected
+        select_back_tile : pygame.Surface, optional
+            The path to the back tile when selected
         pos : tuple, optional
             The position to create the tile at. Default is (0,0)
         size : int, optional
@@ -68,13 +82,13 @@ class Tile(pygame.sprite.Sprite):
             back_tile.fill('black')
         # Scale the tiles to size
         front_tile = pygame.transform.smoothscale(front_tile, (size, size))
-        back_tile  = pygame.transform.smoothscale(back_tile, (size, size))
+        back_tile = pygame.transform.smoothscale(back_tile, (size, size))
 
-        self.tiles = [front_tile, back_tile]
+        self.tiles = [front_tile, back_tile, select_front_tile, select_back_tile]
         self.image = self.tiles[0]
         self.rect = self.image.get_rect(topleft=pos)
         self.dragging = False
-        self.group = False
+        self.selected = False
 
         # To track rotation value to reapply on flip
         self.rotation = 0
@@ -92,7 +106,7 @@ class Tile(pygame.sprite.Sprite):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
                 self.dragging = True
-            if event.type == pygame.MOUSEBUTTONDOWN and self.group:
+            if event.type == pygame.MOUSEBUTTONDOWN and self.selected:
                 self.dragging = True
             if event.type == pygame.MOUSEBUTTONUP:
                 self.dragging = False
@@ -112,7 +126,8 @@ class Tile(pygame.sprite.Sprite):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_r and self.rect.collidepoint(pygame.mouse.get_pos()):
                 # Keep the rotation value from growing too much
                 self.rotation -= 90
-                if self.rotation % 360 == 0: self.rotation = 0
+                if self.rotation % 360 == 0:
+                    self.rotation = 0
                 self.image = pygame.transform.rotate(self.image, -90)
 
     def flip(self, events):
@@ -127,23 +142,25 @@ class Tile(pygame.sprite.Sprite):
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_f and self.rect.collidepoint(pygame.mouse.get_pos()):
                 self.flipped = not self.flipped
-                self.image = self.tiles[self.flipped]
+                self.image = self.tiles[self.flipped + (self.selected * 2)]
                 # Reapply previous rotation
                 self.image = pygame.transform.rotate(self.image, self.rotation)
 
-
-    def add_to_group(self, events):
+    def select(self, selected):
         '''
-        Groups the tile. It does this by switching the value of self.group.
+        Selects the tile for group dragging. Switches tiles to reflect
+        its selection state.
 
         Parameters
         ----------
-        events : list
-            The pygame.events list passed in as a parameter
+        selected : bool
+            Whether to select or not
         '''
-        for event in events:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_g and self.rect.collidepoint(pygame.mouse.get_pos()):
-                self.group = not self.group
+        self.selected = selected
+        self.image = self.tiles[self.flipped + (self.selected * 2)]
+        self.image = pygame.transform.rotate(self.image, self.rotation)
+
+
 
     def update(self, events):
         '''
@@ -157,5 +174,3 @@ class Tile(pygame.sprite.Sprite):
         self.drag(events)
         self.rotate(events)
         self.flip(events)
-        self.add_to_group(events)
-
