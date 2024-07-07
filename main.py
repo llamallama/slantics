@@ -11,7 +11,7 @@ pygame.init()
 # Figure out how many blocks can fit on the screen
 # Round down the rows and cols and take 2 off for good measure
 block_size = 50
-rows = int(pygame.display.Info().current_w/block_size) - 10
+rows = int(pygame.display.Info().current_w/block_size) - 2
 cols = int(pygame.display.Info().current_h/block_size) - 2
 
 # Initial pygame setup
@@ -25,11 +25,11 @@ clock = pygame.time.Clock()
 # Set up the board
 tile_group = pygame.sprite.Group()
 board = Board(screen, block_size)
+
 for i in range(0, len(board.board)):
     for j in range(0, len(board.board[i])):
-        if (i == 0 or i == len(board.board) - 1
-                or
-                (i != 0 and (j == 0 or j == len(board.board[i]) - 1))):
+        # This if statement allows it to arrange the pieces only around the outer edges
+        if (i == 0 or i == len(board.board) - 1 or (i != 0 and (j == 0 or j == len(board.board[i]) - 1))):
             tile_group.add(
                 Slantic(size=block_size)
             )
@@ -133,12 +133,12 @@ if __name__ == '__main__':
         # Update and draw the board
         board.update()
 
-        # Draw the group selectbox
-        selectbox_group.draw(screen)
-
         # Update and draw tiles
         tile_group.update(events)
         tile_group.draw(screen)
+
+        # Draw the group selectbox
+        selectbox_group.draw(screen)
 
         # # Update the display
         pygame.display.update()

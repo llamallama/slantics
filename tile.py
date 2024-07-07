@@ -123,7 +123,11 @@ class Tile(pygame.sprite.Sprite):
             The pygame.events list passed in as a parameter
         '''
         for event in events:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_r and self.rect.collidepoint(pygame.mouse.get_pos()):
+            if (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_r
+                and self.rect.collidepoint(pygame.mouse.get_pos())
+            ):
                 # Keep the rotation value from growing too much
                 self.rotation -= 90
                 if self.rotation % 360 == 0:
