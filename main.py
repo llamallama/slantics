@@ -26,25 +26,40 @@ clock = pygame.time.Clock()
 tile_group = pygame.sprite.Group()
 board = Board(screen, block_size)
 
+# Create the slantics. Only create as many as the number of squares around
+# the edge of the board.
+slantics = []
+
+# Calculate the number of squartes around the border of the board
+num_border_squares = 2 * ((len(board.board) - 1) + (len(board.board[0]) - 1))
+for i in range(num_border_squares):
+    slantics.append(Slantic(size=block_size))
+
+# Now sort them by the shape type
+slantics = sorted(slantics, key=lambda x: x.shape_key)
+
+# Now arrange the sorted tiles around the edge of the boardh
 for i in range(0, len(board.board)):
     for j in range(0, len(board.board[i])):
-        # This if statement allows it to arrange the pieces only around the outer edges
-        if (i == 0 or i == len(board.board) - 1 or (i != 0 and (j == 0 or j == len(board.board[i]) - 1))):
+        # This if statement allows it to arrange the
+        # pieces only around the outer edges
+        if (i == 0 or i == len(board.board) - 1
+                or (i != 0 and (j == 0 or j == len(board.board[i]) - 1))):
             tile_group.add(
-                Slantic(size=block_size)
+                slantics.pop(0)
             )
             board.board[i][j] = tile_group.sprites()[-1]
-
-board.sync()
 
 # Add the selectbox sprite
 selectbox_group = pygame.sprite.GroupSingle()
 
 
 def is_out_of_bounds(sprite):
-    if sprite.rect.centerx < 0 or sprite.rect.centerx > pygame.display.Info().current_w:
+    if (sprite.rect.centerx < 0 or
+            sprite.rect.centerx > pygame.display.Info().current_w):
         return True
-    if sprite.rect.centery < 0 or sprite.rect.centery > pygame.display.Info().current_h:
+    if (sprite.rect.centery < 0 or
+            sprite.rect.centery > pygame.display.Info().current_h):
         return True
     return False
 

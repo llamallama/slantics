@@ -52,7 +52,7 @@ class Slantic(Tile):
         # Set up the shapes using the above coords
         # The tuples describes the order in which to drag the polygons
         shapes = {
-            'bar': {
+            'bar_l': {
                 "poly": (middle_left,
                          top_right,
                          middle_right,
@@ -62,7 +62,17 @@ class Slantic(Tile):
                           (True, True),
                           (False, True))
             },
-            'beam': {
+            'bar_r': {
+                "poly": (middle_right,
+                         top_left,
+                         middle_left,
+                         bottom_right),
+                "edges": ((True, True),
+                          (True, False),
+                          (True, True),
+                          (True, False))
+            },
+            'beam_l': {
                 "poly": (middle_left,
                          top_middle,
                          top_right,
@@ -72,6 +82,17 @@ class Slantic(Tile):
                           (False, True),
                           (True, True),
                           (False, True))
+            },
+            'beam_r': {
+                "poly": (middle_right,
+                         top_middle,
+                         top_left,
+                         middle_left,
+                         bottom_right),
+                "edges": ((False, True),
+                          (True, False),
+                          (True, True),
+                          (True, False))
             },
             'bit': {
                 "poly": (middle_left,
@@ -92,7 +113,7 @@ class Slantic(Tile):
                           (False, False),
                           (False, False))
             },
-            'corner': {
+            'corner_l': {
                 "poly": (top_middle,
                          middle_right,
                          bottom_right,
@@ -101,6 +122,16 @@ class Slantic(Tile):
                           (True, False),
                           (False, False),
                           (True, True))
+            },
+            'corner_r': {
+                "poly": (top_middle,
+                         middle_left,
+                         bottom_left,
+                         bottom_right),
+                "edges": ((True, True),
+                          (True, True),
+                          (False, False),
+                          (False, True))
             },
             'crux': {
                 "poly": (middle,
@@ -111,13 +142,22 @@ class Slantic(Tile):
                           (False, False),
                           (True, True))
              },
-            'fang': {
+            'fang_l': {
                 "poly": (middle_right,
                          bottom_middle,
                          bottom_left),
                 "edges": ((True, True),
                           (True, True),
                           (True, False),
+                          (True, True))
+            },
+            'fang_r': {
+                "poly": (middle_left,
+                         bottom_middle,
+                         bottom_right),
+                "edges": ((True, True),
+                          (True, True),
+                          (False, True),
                           (True, True))
             },
             'hex': {
@@ -171,7 +211,7 @@ class Slantic(Tile):
                           (True, True),
                           (False, False))
             },
-            'slope': {
+            'slope_l': {
                 "poly": (middle_left,
                          bottom_right,
                          bottom_left),
@@ -180,7 +220,16 @@ class Slantic(Tile):
                           (False, False),
                           (False, True))
             },
-            'spike': {
+            'slope_r': {
+                "poly": (middle_right,
+                         bottom_left,
+                         bottom_right),
+                "edges": ((True, True),
+                          (True, False),
+                          (False, False),
+                          (True, True))
+            },
+            'spike_l': {
                 "poly": (top_right,
                          bottom_left,
                          middle_left),
@@ -188,6 +237,15 @@ class Slantic(Tile):
                           (True, True),
                           (True, True),
                           (False, True))
+            },
+            'spike_r': {
+                "poly": (top_left,
+                         bottom_right,
+                         middle_right),
+                "edges": ((True, True),
+                          (True, False),
+                          (True, True),
+                          (True, True))
             },
             'strip': {
                 "poly": (top_middle,
@@ -202,56 +260,38 @@ class Slantic(Tile):
         }
 
         # Choose a shape at random
-        shape_key = random.choice(list(shapes.keys()))
+        self.shape_key = random.choice(list(shapes.keys()))
 
         # Draw the front tile
         front_tile = pygame.Surface((size, size))
         front_tile.fill(bg_color)
         pygame.draw.polygon(front_tile,
                             fg_color,
-                            shapes[shape_key]["poly"])
+                            shapes[self.shape_key]["poly"])
 
         # Draw the back tile
         back_tile = pygame.Surface((size, size))
         back_tile.fill(fg_color)
         pygame.draw.polygon(back_tile,
                             bg_color,
-                            shapes[shape_key]["poly"])
+                            shapes[self.shape_key]["poly"])
 
         # Draw the front select tile
         select_front_tile = pygame.Surface((size, size))
         select_front_tile.fill(select_bg_color)
         pygame.draw.polygon(select_front_tile,
                             select_fg_color,
-                            shapes[shape_key]["poly"])
+                            shapes[self.shape_key]["poly"])
 
         # Draw the back select tile
         select_back_tile = pygame.Surface((size, size))
         select_back_tile.fill(select_fg_color)
         pygame.draw.polygon(select_back_tile,
                             select_bg_color,
-                            shapes[shape_key]["poly"])
+                            shapes[self.shape_key]["poly"])
 
         # Set the edges variable for future reference
-        self.edges = shapes[shape_key]["edges"]
-
-        # Randomly choose to flip the slantic
-        if random.choice([True, False]):
-            front_tile = pygame.transform.flip(front_tile, True, False)
-            back_tile = pygame.transform.flip(back_tile, True, False)
-            select_front_tile = pygame.transform.flip(select_front_tile,
-                                                      True,
-                                                      False)
-            select_back_tile = pygame.transform.flip(select_back_tile,
-                                                     True,
-                                                     False)
-
-            # Swap edge 1 and 3. Reverse them so the edge is properly flipped.
-            self.edges = (
-                self.edges[0][::-1],
-                self.edges[3][::-1],
-                self.edges[2][::-1],
-                self.edges[1][::-1])
+        self.edges = shapes[self.shape_key]["edges"]
 
         super().__init__(front_tile=front_tile,
                          back_tile=back_tile,
@@ -279,6 +319,8 @@ class Slantic(Tile):
                               self.edges[0],
                               self.edges[1],
                               self.edges[2])
+                print(self.edges)
+                print('---------')
 
         super().rotate(events)
 
@@ -300,6 +342,7 @@ class Slantic(Tile):
                 flipped_edges = ()
 
                 # Switch all 0s to 1s and all 1s to 0s
+                # Use a temp tuple because tuples are immutable
                 for edge in self.edges:
                     flipped_edge = ()
                     for val in edge:
