@@ -38,17 +38,31 @@ for i in range(num_border_squares):
 # Now sort them by the shape type
 slantics = sorted(slantics, key=lambda x: x.shape_key)
 
-# Now arrange the sorted tiles around the edge of the boardh
-for i in range(0, len(board.board)):
-    for j in range(0, len(board.board[i])):
-        # This if statement allows it to arrange the
-        # pieces only around the outer edges
-        if (i == 0 or i == len(board.board) - 1
-                or (i != 0 and (j == 0 or j == len(board.board[i]) - 1))):
-            tile_group.add(
-                slantics.pop(0)
-            )
-            board.board[i][j] = tile_group.sprites()[-1]
+# Now arrange the sorted tiles around the edge of the board
+# Top row counting up
+for i in range(len(board.board[0])-1):
+    tile_group.add(
+        slantics.pop(0)
+    )
+    board.board[0][i] = tile_group.sprites()[-1]
+# Right column counting up
+for i in range(len(board.board)-1):
+    tile_group.add(
+        slantics.pop(0)
+    )
+    board.board[i][len(board.board[0])-1] = tile_group.sprites()[-1]
+# Bottom row counting down
+for i in range(len(board.board[-1])-1, 0, -1):
+    tile_group.add(
+        slantics.pop(0)
+    )
+    board.board[-1][i] = tile_group.sprites()[-1]
+# Left row counting down
+for i in range(len(board.board)-1, 0, -1):
+    tile_group.add(
+        slantics.pop(0)
+    )
+    board.board[i][0] = tile_group.sprites()[-1]
 
 # Add the selectbox sprite
 selectbox_group = pygame.sprite.GroupSingle()

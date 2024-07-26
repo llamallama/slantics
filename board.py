@@ -83,8 +83,8 @@ class Board():
         if True not in pygame.mouse.get_pressed():
             # Only sync when no mouse buttons are down
             # Otherwise it'll mess up group dragging
-            for row in range(0, len(self.board)):
-                for col in range(0, len(self.board[row])):
+            for row in range(len(self.board)):
+                for col in range(len(self.board[row])):
                     if self.board[row][col]:
                         cell_y = row * self.block_size
                         cell_x = col * self.block_size
