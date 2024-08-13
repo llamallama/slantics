@@ -23,9 +23,9 @@ class Tile(pygame.sprite.Sprite):
     -------
     drag(events):
         Drags the tile
-    rotate(events):
+    rotate():
         Rotates the tile
-    flip(events):
+    flip():
         Flips the tile
     update(events):
         Override for the sprite update class. Runs all of the above functions.
@@ -113,42 +113,24 @@ class Tile(pygame.sprite.Sprite):
             if self.dragging and event.type == pygame.MOUSEMOTION:
                 self.rect.move_ip(event.rel)
 
-    def rotate(self, events):
+    def rotate(self):
         '''
         Rotates the tile 90 degrees and tracks the current rotation.
-
-        Parameters
-        ----------
-        events : list
-            The pygame.events list passed in as a parameter
         '''
-        for event in events:
-            if (
-                event.type == pygame.KEYDOWN
-                and event.key == pygame.K_r
-                and self.rect.collidepoint(pygame.mouse.get_pos())
-            ):
-                # Keep the rotation value from growing too much
-                self.rotation -= 90
-                if self.rotation % 360 == 0:
-                    self.rotation = 0
-                self.image = pygame.transform.rotate(self.image, -90)
+        # Keep the rotation value from growing too much
+        self.rotation -= 90
+        if self.rotation % 360 == 0:
+            self.rotation = 0
+        self.image = pygame.transform.rotate(self.image, -90)
 
-    def flip(self, events):
+    def flip(self):
         '''
         Flips the tile over. It does this by switching self.image between two surfaces.
-
-        Parameters
-        ----------
-        events : list
-            The pygame.events list passed in as a parameter
         '''
-        for event in events:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_f and self.rect.collidepoint(pygame.mouse.get_pos()):
-                self.flipped = not self.flipped
-                self.image = self.tiles[self.flipped + (self.selected * 2)]
-                # Reapply previous rotation
-                self.image = pygame.transform.rotate(self.image, self.rotation)
+        self.flipped = not self.flipped
+        self.image = self.tiles[self.flipped + (self.selected * 2)]
+        # Reapply previous rotation
+        self.image = pygame.transform.rotate(self.image, self.rotation)
 
     def select(self, selected):
         '''
@@ -164,8 +146,6 @@ class Tile(pygame.sprite.Sprite):
         self.image = self.tiles[self.flipped + (self.selected * 2)]
         self.image = pygame.transform.rotate(self.image, self.rotation)
 
-
-
     def update(self, events):
         '''
         Override for the sprite update class. Runs all of the above functions.
@@ -176,5 +156,3 @@ class Tile(pygame.sprite.Sprite):
             The pygame.events list passed in as a parameter
         '''
         self.drag(events)
-        self.rotate(events)
-        self.flip(events)

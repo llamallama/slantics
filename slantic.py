@@ -28,8 +28,10 @@ class Slantic(Tile):
 
     Methods
     -------
-    rotate(events):
+    rotate():
         Rotates the tile
+    flip():
+        Flips the tile
     '''
     def __init__(self, pos=(0, 0), size=50):
         # Setting up colors
@@ -300,31 +302,20 @@ class Slantic(Tile):
                          pos=pos,
                          size=size)
 
-    def rotate(self, events):
+    def rotate(self):
         '''
         Override for the tile rotate method. Adds rotation of edges.
-
-        Parameters
-        ----------
-        events : list
-            The pygame.events list passed in as a parameter
         '''
-        for event in events:
-            if (
-                event.type == pygame.KEYDOWN
-                and event.key == pygame.K_r
-                and self.rect.collidepoint(pygame.mouse.get_pos())
-            ):
-                self.edges = (self.edges[3],
-                              self.edges[0],
-                              self.edges[1],
-                              self.edges[2])
-                print(self.edges)
-                print('---------')
+        self.edges = (self.edges[3],
+                      self.edges[0],
+                      self.edges[1],
+                      self.edges[2])
+        print(self.edges)
+        print('---------')
 
-        super().rotate(events)
+        super().rotate()
 
-    def flip(self, events):
+    def flip(self):
         '''
         Override for the tile flip method. Adds flipping of edges.
 
@@ -333,22 +324,43 @@ class Slantic(Tile):
         events : list
             The pygame.events list passed in as a parameter
         '''
+        flipped_edges = ()
+
+        # Switch all 0s to 1s and all 1s to 0s
+        # Use a temp tuple because tuples are immutable
+        for edge in self.edges:
+            flipped_edge = ()
+            for val in edge:
+                flipped_edge += (not val,)
+            flipped_edges += (flipped_edge,)
+
+        self.edges = flipped_edges
+
+        super().flip()
+
+    def handle_events(self, events):
         for event in events:
+            if (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_r
+                and self.rect.collidepoint(pygame.mouse.get_pos())
+            ):
+                self.rotate()
             if (
                 event.type == pygame.KEYDOWN
                 and event.key == pygame.K_f
                 and self.rect.collidepoint(pygame.mouse.get_pos())
             ):
-                flipped_edges = ()
+                self.flip()
 
-                # Switch all 0s to 1s and all 1s to 0s
-                # Use a temp tuple because tuples are immutable
-                for edge in self.edges:
-                    flipped_edge = ()
-                    for val in edge:
-                        flipped_edge += (not val,)
-                    flipped_edges += (flipped_edge,)
+    def update(self, events):
+        '''
+        Override for the sprite update class. Handles key events.
 
-                self.edges = flipped_edges
-
-        super().flip(events)
+        Parameters
+        ----------
+        events : list
+            The pygame.events list passed in as a parameter
+        '''
+        self.handle_events(events)
+        super().update(events)
