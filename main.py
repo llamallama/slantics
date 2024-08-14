@@ -45,18 +45,21 @@ for i in range(len(board.board[0])-1):
         slantics.pop(0)
     )
     board.board[0][i] = tile_group.sprites()[-1]
+
 # Right column counting up
 for i in range(len(board.board)-1):
     tile_group.add(
         slantics.pop(0)
     )
     board.board[i][len(board.board[0])-1] = tile_group.sprites()[-1]
+
 # Bottom row counting down
 for i in range(len(board.board[-1])-1, 0, -1):
     tile_group.add(
         slantics.pop(0)
     )
     board.board[-1][i] = tile_group.sprites()[-1]
+
 # Left row counting down
 for i in range(len(board.board)-1, 0, -1):
     tile_group.add(
@@ -77,24 +80,19 @@ def out_of_bounds(sprite):
         return True
     return False
 
+
 def holding_shift():
     # Checker to see if shift is being held
     keys = pygame.key.get_pressed()
     return keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]
 
-def clear_positions(event):
-    # clears out the board cells for slantics being dragged somewhere else
-    board_backup = [row.copy() for row in board.board]
 
-    # Don't clear positions if the shift keys are pressed.
-    # That means we are making a multiselection
-    if not holding_shift():
-        for sprite in tile_group.sprites():
-            if sprite.rect.collidepoint(event.pos) or sprite.selected:
-                row = int(sprite.rect.y / block_size)
-                col = int(sprite.rect.x / block_size)
-                board.board[row][col] = 0
-    return board_backup
+def clear_positions(event):
+    for sprite in tile_group.sprites():
+        if sprite.rect.collidepoint(event.pos) or sprite.selected:
+            row = int(sprite.rect.y / block_size)
+            col = int(sprite.rect.x / block_size)
+            board.board[row][col] = 0
 
 
 def update_positions(board_backup):
@@ -114,13 +112,9 @@ def update_positions(board_backup):
 
 
 def deselect_all():
-
-    # Don't deselect if the shift keys are pressed.
-    # That means we are making a multiselection
-    if not holding_shift():
-        for sprite in tile_group.sprites():
-            sprite.dragging = False
-            sprite.select(False)
+    for sprite in tile_group.sprites():
+        sprite.dragging = False
+        sprite.select(False)
 
 
 if __name__ == '__main__':
@@ -140,33 +134,53 @@ if __name__ == '__main__':
                 row = int(event.pos[1] / block_size)
                 col = int(event.pos[0] / block_size)
 
-
                 # If not clicking on anything, stop all dragging and grouping
                 # Then start drawing the group select box
                 if not board.board[row][col]:
                     selectbox_group.sprite = SelectBox(event.pos)
-                    deselect_all()
+
+                    # Don't deselect if the shift keys are pressed.
+                    # That means we are making a multiselection
+                    if not holding_shift():
+                        deselect_all()
 
                 # If we are clicking something not part of a group
                 # Deselect all the others so only this tile drags
                 if board.board[row][col] and not board.board[row][col].selected:
-                    deselect_all()
+                    # Don't deselect if the shift keys are pressed.
+                    # That means we are making a multiselection
+                    if not holding_shift():
+                        deselect_all()
+
+                # Start dragging on the clicked tile
+                # It has to be done here rather than in the class.
+                # Otherwise there will be a race condition between when
+                # tile dragging starts and the board.sync() function.
+                if board.board[row][col]:
+                    board.board[row][col].dragging = True
 
                 # Backup the board and clear positions of sprites being dragged
-                board_backup = clear_positions(event)
+                board_backup = [row.copy() for row in board.board]
+
+                # Don't clear positions if the shift keys are pressed.
+                # That means we are making a multiselection
+                if not holding_shift():
+                    clear_positions(event)
 
             if event.type == pygame.MOUSEBUTTONUP:
+                # Update the board with the new tile positions
                 update_positions(board_backup)
 
+                # Select tiles from click and drag multiselect
                 if selectbox_group.sprite:
                     for sprite in pygame.sprite.spritecollide(selectbox_group.sprite, tile_group, False):
                         sprite.select(True)
 
                     # clear the select box
                     selectbox_group.empty()
-                board.debug()
 
             if event.type == pygame.MOUSEMOTION:
+                # Resize the click and drag multiselect box
                 if selectbox_group.sprite:
                     selectbox_group.sprite.resize(event)
 
@@ -183,8 +197,8 @@ if __name__ == '__main__':
         # Draw the group selectbox
         selectbox_group.draw(screen)
 
-        # # Update the display
+        # Update the display
         pygame.display.update()
 
         # Lock at 30 FPS
-        clock.tick(30)
+        clock.tick(60)

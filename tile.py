@@ -109,8 +109,6 @@ class Tile(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if not keys[pygame.K_LSHIFT] and not keys[pygame.K_RSHIFT]:
             for event in events:
-                if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
-                    self.dragging = True
                 if event.type == pygame.MOUSEBUTTONDOWN and self.selected:
                     self.dragging = True
                 if event.type == pygame.MOUSEBUTTONUP:
