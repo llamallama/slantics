@@ -103,15 +103,20 @@ class Tile(pygame.sprite.Sprite):
         events : list
             The pygame.events list passed in as a parameter
         '''
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
-                self.dragging = True
-            if event.type == pygame.MOUSEBUTTONDOWN and self.selected:
-                self.dragging = True
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.dragging = False
-            if self.dragging and event.type == pygame.MOUSEMOTION:
-                self.rect.move_ip(event.rel)
+
+        # Don't drag if the shift keys are pressed.
+        # That means we are making a multiselection
+        keys = pygame.key.get_pressed()
+        if not keys[pygame.K_LSHIFT] and not keys[pygame.K_RSHIFT]:
+            for event in events:
+                if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+                    self.dragging = True
+                if event.type == pygame.MOUSEBUTTONDOWN and self.selected:
+                    self.dragging = True
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.dragging = False
+                if self.dragging and event.type == pygame.MOUSEMOTION:
+                    self.rect.move_ip(event.rel)
 
     def rotate(self):
         '''

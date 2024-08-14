@@ -352,6 +352,13 @@ class Slantic(Tile):
                 and self.rect.collidepoint(pygame.mouse.get_pos())
             ):
                 self.flip()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button:
+                keys = pygame.key.get_pressed()
+                if (
+                    (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT])
+                    and self.rect.collidepoint(pygame.mouse.get_pos())
+                ):
+                    super().select(True)
 
     def update(self, events):
         '''
