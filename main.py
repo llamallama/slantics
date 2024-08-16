@@ -174,7 +174,7 @@ if __name__ == '__main__':
                 # Select tiles from click and drag multiselect
                 if selectbox_group.sprite:
                     for sprite in pygame.sprite.spritecollide(selectbox_group.sprite, tile_group, False):
-                        sprite.select(True)
+                        sprite.select(not sprite.selected)
 
                     # clear the select box
                     selectbox_group.empty()

@@ -116,6 +116,11 @@ class Tile(pygame.sprite.Sprite):
                 # Move the tile in relation to the mouse
                 if self.dragging and event.type == pygame.MOUSEMOTION:
                     self.rect.move_ip(event.rel)
+            else:
+                # Handle single shift click selection
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.rect.collidepoint(pygame.mouse.get_pos()):
+                        self.select(not self.selected)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 self.dragging = False
