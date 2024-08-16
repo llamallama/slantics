@@ -64,13 +64,16 @@ class Tile(pygame.sprite.Sprite):
         ----------
         tiles : list
             A list that contains the front and back images of the tile
+        image : pygame.Surface
+            Required pygame.Sprite image var
+        rect : pygame.Rect
+            Required pygame rect var
         dragging : bool
             Tracks if the tile is being dragged
         rotation : int
             The current rotation angle of the tile
         flipped : bool
             Whether or not the tile is currently flipped
-
         '''
         super().__init__()
         # Set the tiles images
@@ -84,7 +87,11 @@ class Tile(pygame.sprite.Sprite):
         front_tile = pygame.transform.smoothscale(front_tile, (size, size))
         back_tile = pygame.transform.smoothscale(back_tile, (size, size))
 
-        self.tiles = [front_tile, back_tile, select_front_tile, select_back_tile]
+        self.tiles = [front_tile,
+                      back_tile,
+                      select_front_tile,
+                      select_back_tile]
+
         self.image = self.tiles[0]
         self.rect = self.image.get_rect(topleft=pos)
         self.dragging = False
@@ -102,6 +109,10 @@ class Tile(pygame.sprite.Sprite):
         ----------
         events : list
             The pygame.events list passed in as a parameter
+
+        Returns
+        -------
+        None
         '''
 
         keys = pygame.key.get_pressed()
@@ -128,6 +139,14 @@ class Tile(pygame.sprite.Sprite):
     def rotate(self):
         '''
         Rotates the tile 90 degrees and tracks the current rotation.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
         '''
         # Keep the rotation value from growing too much
         self.rotation -= 90
@@ -137,7 +156,16 @@ class Tile(pygame.sprite.Sprite):
 
     def flip(self):
         '''
-        Flips the tile over. It does this by switching self.image between two surfaces.
+        Flips the tile over.
+        It does this by switching self.image between two surfaces.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
         '''
         self.flipped = not self.flipped
         self.image = self.tiles[self.flipped + (self.selected * 2)]
@@ -153,6 +181,10 @@ class Tile(pygame.sprite.Sprite):
         ----------
         selected : bool
             Whether to select or not
+
+        Returns
+        -------
+        None
         '''
         self.selected = selected
         self.image = self.tiles[self.flipped + (self.selected * 2)]
@@ -166,5 +198,9 @@ class Tile(pygame.sprite.Sprite):
         ----------
         events : list
             The pygame.events list passed in as a parameter
+
+        Returns
+        -------
+        None
         '''
         self.drag(events)

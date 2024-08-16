@@ -2,6 +2,24 @@ import pygame
 
 
 class SelectBox(pygame.sprite.Sprite):
+    '''
+    Draws the click and drag multi select box
+    Extends pygame.Sprite.
+
+    Attributes
+    ----------
+    image : pygame.Surface
+        The current image surface applied to the tile
+    rect: int
+        The size of the board cells in pixels
+    pos : tuple
+        The anchor position to draw the select box around
+
+    Methods
+    -------
+    resize(event):
+        Resizes the select box.
+    '''
     def __init__(self, pos=(0, 0)):
         super().__init__()
         self.image = pygame.Surface((0, 0))

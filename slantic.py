@@ -310,8 +310,6 @@ class Slantic(Tile):
                       self.edges[0],
                       self.edges[1],
                       self.edges[2])
-        print(self.edges)
-        print('---------')
 
         super().rotate()
 
@@ -355,12 +353,19 @@ class Slantic(Tile):
 
     def update(self, events):
         '''
-        Override for the sprite update class. Handles key events.
+        Override for the Tile's update class.
+        Here to handle Handles keyboard events that are
+        Slantic specific specific but not Tile specific.
 
         Parameters
         ----------
         events : list
             The pygame.events list passed in as a parameter
+
+        Returns
+        -------
+        None
         '''
+
         self.handle_events(events)
         super().update(events)

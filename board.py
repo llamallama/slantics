@@ -21,8 +21,8 @@ class Board():
     -------
     draw_grid():
         Draws the grid onto the screen
-    snap():
-        Snaps tiles into place after dragging
+    sync():
+        Updates tile positions as they are represented in the board array
     '''
     def __init__(self, screen, block_size):
         '''
@@ -99,7 +99,7 @@ class Board():
 
     def update(self):
         '''
-        Continually updates the board
+        Continually draws and syncs the board
 
         Parameters
         ---------
