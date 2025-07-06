@@ -3,73 +3,11 @@ import pygame
 from slantic import Slantic
 from board import Board
 from selectbox import SelectBox
+from rules import Rules
 from sys import exit
 # import pudb; pu.db
 
 pygame.init()
-
-# Figure out how many blocks can fit on the screen
-# Round down the rows and cols and take 2 off for good measure
-block_size = 50
-rows = int(pygame.display.Info().current_w/block_size) - 2
-cols = int(pygame.display.Info().current_h/block_size) - 2
-
-# Initial pygame setup
-pygame.display.set_caption("Slantics")
-screen = pygame.display.set_mode(
-    ((block_size * rows),
-     (block_size * cols))
-)
-clock = pygame.time.Clock()
-
-# Set up the board
-tile_group = pygame.sprite.Group()
-board = Board(screen, block_size)
-
-# Create the slantics. Only create as many as the number of squares around
-# the edge of the board.
-slantics = []
-
-# Calculate the number of squartes around the border of the board
-num_border_squares = 2 * ((len(board.board) - 1) + (len(board.board[0]) - 1))
-for i in range(num_border_squares):
-    slantics.append(Slantic(size=block_size))
-
-# Now sort them by the shape type
-slantics = sorted(slantics, key=lambda x: x.shape_key)
-
-# Now arrange the sorted tiles around the edge of the board
-# Top row counting up
-for i in range(len(board.board[0])-1):
-    tile_group.add(
-        slantics.pop(0)
-    )
-    board.board[0][i] = tile_group.sprites()[-1]
-
-# Right column counting up
-for i in range(len(board.board)-1):
-    tile_group.add(
-        slantics.pop(0)
-    )
-    board.board[i][len(board.board[0])-1] = tile_group.sprites()[-1]
-
-# Bottom row counting down
-for i in range(len(board.board[-1])-1, 0, -1):
-    tile_group.add(
-        slantics.pop(0)
-    )
-    board.board[-1][i] = tile_group.sprites()[-1]
-
-# Left row counting down
-for i in range(len(board.board)-1, 0, -1):
-    tile_group.add(
-        slantics.pop(0)
-    )
-    board.board[i][0] = tile_group.sprites()[-1]
-
-# Add the selectbox sprite
-selectbox_group = pygame.sprite.GroupSingle()
-
 
 def out_of_bounds(sprite):
     if (sprite.rect.centerx < 0 or
@@ -118,6 +56,70 @@ def deselect_all():
 
 
 if __name__ == '__main__':
+    # Figure out how many blocks can fit on the screen
+    # Round down the rows and cols and take 2 off for good measure
+    block_size = 50
+    rows = int(pygame.display.Info().current_w/block_size) - 5
+    cols = int(pygame.display.Info().current_h/block_size) - 5
+
+    # Initial pygame setup
+    pygame.display.set_caption("Slantics")
+    screen = pygame.display.set_mode(
+        ((block_size * rows),
+         (block_size * cols))
+    )
+    clock = pygame.time.Clock()
+
+    # Set up the board
+    tile_group = pygame.sprite.Group()
+    board = Board(screen, block_size)
+
+    # Create the slantics. Only create as many as the number of squares around
+    # the edge of the board.
+    slantics = []
+
+    # Calculate the number of squartes around the border of the board
+    num_border_squares = 2 * ((len(board.board) - 1) + (len(board.board[0]) - 1))
+    for i in range(num_border_squares):
+        slantics.append(Slantic(size=block_size))
+
+    # Now sort them by the shape type
+    slantics = sorted(slantics, key=lambda x: x.shape_key)
+
+    # Now arrange the sorted tiles around the edge of the board
+    # Top row counting up
+    for i in range(len(board.board[0])-1):
+        tile_group.add(
+            slantics.pop(0)
+        )
+        board.board[0][i] = tile_group.sprites()[-1]
+
+    # Right column counting up
+    for i in range(len(board.board)-1):
+        tile_group.add(
+            slantics.pop(0)
+        )
+        board.board[i][len(board.board[0])-1] = tile_group.sprites()[-1]
+
+    # Bottom row counting down
+    for i in range(len(board.board[-1])-1, 0, -1):
+        tile_group.add(
+            slantics.pop(0)
+        )
+        board.board[-1][i] = tile_group.sprites()[-1]
+
+    # Left row counting down
+    for i in range(len(board.board)-1, 0, -1):
+        tile_group.add(
+            slantics.pop(0)
+        )
+        board.board[i][0] = tile_group.sprites()[-1]
+
+    # Add the selectbox sprite
+    selectbox_group = pygame.sprite.GroupSingle()
+
+    rules = Rules(board)
+
     while True:
         events = pygame.event.get()
         for event in events:
@@ -178,6 +180,9 @@ if __name__ == '__main__':
 
                     # clear the select box
                     selectbox_group.empty()
+
+                # Check the edges (experimental)
+                rules.check_edges()
 
             if event.type == pygame.MOUSEMOTION:
                 # Resize the click and drag multiselect box
