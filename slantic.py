@@ -62,7 +62,7 @@ class Slantic(Tile):
                 "edges": ((True, True),
                           (False, True),
                           (True, True),
-                          (False, True))
+                          (True, False))
             },
             'bar_r': {
                 "poly": (middle_right,
@@ -72,7 +72,7 @@ class Slantic(Tile):
                 "edges": ((True, True),
                           (True, False),
                           (True, True),
-                          (True, False))
+                          (False, True))
             },
             'beam_l': {
                 "poly": (middle_left,
@@ -83,7 +83,7 @@ class Slantic(Tile):
                 "edges": ((True, False),
                           (False, True),
                           (True, True),
-                          (False, True))
+                          (True, False))
             },
             'beam_r': {
                 "poly": (middle_right,
@@ -94,7 +94,7 @@ class Slantic(Tile):
                 "edges": ((False, True),
                           (True, False),
                           (True, True),
-                          (True, False))
+                          (False, True))
             },
             'bit': {
                 "poly": (middle_left,
@@ -102,8 +102,8 @@ class Slantic(Tile):
                          bottom_left),
                 "edges": ((True, True),
                           (True, True),
-                          (True, False),
-                          (False, True))
+                          (False, True),
+                          (True, False))
             },
             'bonus': {
                 "poly": (top_left,
@@ -133,7 +133,7 @@ class Slantic(Tile):
                 "edges": ((True, True),
                           (True, True),
                           (False, False),
-                          (False, True))
+                          (True, False))
             },
             'crux': {
                 "poly": (middle,
@@ -150,7 +150,7 @@ class Slantic(Tile):
                          bottom_left),
                 "edges": ((True, True),
                           (True, True),
-                          (True, False),
+                          (False, True),
                           (True, True))
             },
             'fang_r': {
@@ -159,7 +159,7 @@ class Slantic(Tile):
                          bottom_right),
                 "edges": ((True, True),
                           (True, True),
-                          (False, True),
+                          (True, False),
                           (True, True))
             },
             'hex': {
@@ -171,8 +171,8 @@ class Slantic(Tile):
                          middle_left),
                 "edges": ((True, False),
                           (False, True),
-                          (True, False),
-                          (False, True))
+                          (False, True),
+                          (True, False))
             },
             'hill': {
                 "poly": (top_middle,
@@ -183,7 +183,7 @@ class Slantic(Tile):
                 "edges": ((True, True),
                           (True, False),
                           (False, False),
-                          (False, True))
+                          (True, False))
             },
             'peak': {
                 "poly": (top_middle,
@@ -201,7 +201,7 @@ class Slantic(Tile):
                          bottom_middle),
                 "edges": ((True, True),
                           (True, False),
-                          (False, True),
+                          (True, False),
                           (True, True))
             },
             'slant': {
@@ -220,7 +220,7 @@ class Slantic(Tile):
                 "edges": ((True, True),
                           (True, True),
                           (False, False),
-                          (False, True))
+                          (True, False))
             },
             'slope_r': {
                 "poly": (middle_right,
@@ -238,7 +238,7 @@ class Slantic(Tile):
                 "edges": ((True, True),
                           (True, True),
                           (True, True),
-                          (False, True))
+                          (True, False))
             },
             'spike_r': {
                 "poly": (top_left,
@@ -257,7 +257,7 @@ class Slantic(Tile):
                 "edges": ((True, False),
                           (True, True),
                           (True, True),
-                          (False, True))
+                          (True, False))
             }
         }
 

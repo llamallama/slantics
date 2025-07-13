@@ -26,7 +26,7 @@ def holding_shift():
 
 
 def clear_positions(event):
-    for sprite in tile_group.sprites():
+    for sprite in slantics.sprites():
         if sprite.rect.collidepoint(event.pos) or sprite.selected:
             row = int(sprite.rect.y / block_size)
             col = int(sprite.rect.x / block_size)
@@ -34,7 +34,7 @@ def clear_positions(event):
 
 
 def update_positions(board_backup):
-    for sprite in tile_group.sprites():
+    for sprite in slantics.sprites():
         if sprite.dragging:
             row = int(sprite.rect.centery / block_size)
             col = int(sprite.rect.centerx / block_size)
@@ -50,7 +50,7 @@ def update_positions(board_backup):
 
 
 def deselect_all():
-    for sprite in tile_group.sprites():
+    for sprite in slantics.sprites():
         sprite.dragging = False
         sprite.select(False)
 
@@ -115,11 +115,19 @@ if __name__ == '__main__':
         )
         board.board[i][0] = tile_group.sprites()[-1]
 
+    # Tile group becomes slantics. Get rid of tile_group
+    # This is merely cosmetic
+    slantics = tile_group
+    del tile_group
+
     # Add the selectbox sprite
     selectbox_group = pygame.sprite.GroupSingle()
 
+    # Instantiate the rules class
+    # Handles edge matching and score keeping
     rules = Rules(board)
 
+    # Main game loop
     while True:
         events = pygame.event.get()
         for event in events:
@@ -173,16 +181,31 @@ if __name__ == '__main__':
                 # Update the board with the new tile positions
                 update_positions(board_backup)
 
+                # Update matched edge tracking
+                rules.match_edges()
+
+                ### NOT NEEDED. JUST TESTING MATCHES ###
+                # Save the mouse position in case we
+                mouse_click_pos = event.pos
+
+                # Figure out which grid cell we are clicking.
+                row = int(event.pos[1] / block_size)
+                col = int(event.pos[0] / block_size)
+                if board.board[row][col]:
+                    for key, value in rules.matches[board.board[row][col]].items():
+                        print(key)
+
+                ### NOT NEEDED. JUST TESTING MATCHES ###
+
+
                 # Select tiles from click and drag multiselect
                 if selectbox_group.sprite:
-                    for sprite in pygame.sprite.spritecollide(selectbox_group.sprite, tile_group, False):
+                    for sprite in pygame.sprite.spritecollide(selectbox_group.sprite, slantics, False):
                         sprite.select(not sprite.selected)
 
                     # clear the select box
                     selectbox_group.empty()
 
-                # Check the edges (experimental)
-                rules.check_edges()
 
             if event.type == pygame.MOUSEMOTION:
                 # Resize the click and drag multiselect box
@@ -196,8 +219,8 @@ if __name__ == '__main__':
         board.update()
 
         # Update and draw tiles
-        tile_group.update(events)
-        tile_group.draw(screen)
+        slantics.update(events)
+        slantics.draw(screen)
 
         # Draw the group selectbox
         selectbox_group.draw(screen)
